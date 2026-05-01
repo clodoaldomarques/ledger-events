@@ -21,7 +21,7 @@ type AccountScriptsApi struct {
 }
 
 func New(ctx context.Context) *AccountScriptsApi {
-	baseUrl := configs.New().AccountScriptsApiUrl
+	baseUrl := configs.New().LedgerConfigApiUrl
 	cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
 		Name:    "AccountingScriptsAPI",
 		Timeout: 15 * time.Second,

@@ -8,17 +8,17 @@ import (
 )
 
 type Config struct {
-	AppPort              int
-	MySqlDBUser          string
-	MySqlDBPass          string
-	MySqlDBHost          string
-	MySqlDBPort          string
-	MysqlDBName          string
-	AwsAddress           string
-	AwsRegion            string
-	AccessKeyID          string
-	SecretAccessKey      string
-	AccountScriptsApiUrl string
+	AppPort            int
+	MySqlDBUser        string
+	MySqlDBPass        string
+	MySqlDBHost        string
+	MySqlDBPort        string
+	MysqlDBName        string
+	AwsAddress         string
+	AwsRegion          string
+	AccessKeyID        string
+	SecretAccessKey    string
+	LedgerConfigApiUrl string
 }
 
 type Option func(*Config)
@@ -31,17 +31,17 @@ var (
 func New(options ...Option) *Config {
 	singleton.Do(func() {
 		instance = &Config{
-			AppPort:              GetInt("APP_PORT", 8080),
-			MySqlDBUser:          GetString("MYSQL_USER", "admin"),
-			MySqlDBPass:          GetString("MYSQL_PASSWORD", "4cc40t1ng"),
-			MySqlDBHost:          GetString("MYSQL_HOST", "192.168.49.2"),
-			MySqlDBPort:          GetString("MYSQL_PORT", "30001"),
-			MysqlDBName:          GetString("MYSQL_DATABASE", "accounting"),
-			AwsAddress:           GetString("AWS_ADDRESS", "http://192.168.49.2:30002"),
-			AwsRegion:            GetString("AWS_REGION", "us-east-1"),
-			AccessKeyID:          GetString("AWS_ACCESS_KEY_ID", "test"),
-			SecretAccessKey:      GetString("AWS_SECRET_ACCESS_KEY", "test"),
-			AccountScriptsApiUrl: GetString("ACCOUNTING_SCRIPTS_API_URL", "http://192.168.49.2:31000"),
+			AppPort:            GetInt("APP_PORT", 8080),
+			MySqlDBUser:        GetString("MYSQL_USER", "admin"),
+			MySqlDBPass:        GetString("MYSQL_PASSWORD", "4cc40t1ng"),
+			MySqlDBHost:        GetString("MYSQL_HOST", "192.168.49.2"),
+			MySqlDBPort:        GetString("MYSQL_PORT", "30001"),
+			MysqlDBName:        GetString("MYSQL_DATABASE", "accounting"),
+			AwsAddress:         GetString("AWS_ADDRESS", "http://192.168.49.2:30002"),
+			AwsRegion:          GetString("AWS_REGION", "us-east-1"),
+			AccessKeyID:        GetString("AWS_ACCESS_KEY_ID", "test"),
+			SecretAccessKey:    GetString("AWS_SECRET_ACCESS_KEY", "test"),
+			LedgerConfigApiUrl: GetString("ACCOUNTING_SCRIPTS_API_URL", "http://192.168.49.2:31000"),
 		}
 	})
 
@@ -69,9 +69,9 @@ func WithAwsRegion(awsRegion string) Option {
 	}
 }
 
-func WithAccountScriptsApiUrl(accountScriptsApiUrl string) Option {
+func WithAccountScriptsApiUrl(ledgerConfigApiUrl string) Option {
 	return func(c *Config) {
-		c.AccountScriptsApiUrl = accountScriptsApiUrl
+		c.LedgerConfigApiUrl = ledgerConfigApiUrl
 	}
 }
 

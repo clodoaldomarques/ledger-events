@@ -1,4 +1,4 @@
-api = accounting-events-api
+api = ledger-events
 repository = clodoaldomarques
 
 run:
