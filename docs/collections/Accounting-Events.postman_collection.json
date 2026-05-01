@@ -1,0 +1,63 @@
+{
+	"info": {
+		"_postman_id": "5be1e0f3-84be-414d-a7b6-07c5d60ee2ee",
+		"name": "Accounting-Events",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14021863"
+	},
+	"item": [
+		{
+			"name": "Create Accounting Events",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = JSON.parse(responseBody);",
+							"",
+							"pm.environment.set(\"scriptID\", jsonData.script_id)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-cid",
+						"value": "{{$randomUUID}}",
+						"type": "text"
+					},
+					{
+						"key": "x-tenant",
+						"value": "{{tenant-01}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"event_type_id\" : \"0056\",\n    \"transaction_id\" : 10056,\n    \"authorization_id\": 10065,\n    \"program_id\" : 400,\n    \"account_id\" : 123,\n    \"days_due\" : 0,\n    \"event_date\": \"2025-08-16T10:30:00Z\",\n    \"transaction_type\" : 101,\n    \"process_id\" : 123,\n    \"producer\" : \"migration\",\n    \"chunk_part\" : 1,\n    \"amounts\": {\n        \"amount\" : 150.00\n    }, \n    \"fees\" : {\n        \"iof\" : 15.99\n    }    \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{accounting-events-host}} /v1/accounting/events",
+					"host": [
+						"{{accounting-events-host}} "
+					],
+					"path": [
+						"v1",
+						"accounting",
+						"events"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-script
+data:
+  init-db.sql: |
+    -- Criação de duas bases de dados
+    CREATE DATABASE IF NOT EXISTS accounting;
+
+    -- Criação de um usuário e concessão de privilégios
+    GRANT ALL PRIVILEGES ON accounting.* TO 'admin'@'%';
+    FLUSH PRIVILEGES;
+
+    USE accounting;
+    
+    CREATE TABLE IF NOT EXISTS event(
+        event_id varchar(50) primary key,
+        correlation_id varchar(50) not null,
+        org_id varchar(60) not null,
+        event_type_id varchar(100),
+        transaction_id bigint,
+        authorization_id bigint,
+        program_id bigint not null,
+        customer_id bigint,
+        account_id bigint not null,
+        days_due bigint,
+        description varchar(200) not null,
+        transaction_type bigint,
+        process_id bigint,
+        producer varchar(100) not null,
+        processing_code varchar(100),
+        processing_description varchar(200),
+        clearing_date timestamp,
+        chunk_part bigint,
+        created_at timestamp
+    );
+
+    CREATE TABLE IF NOT EXISTS entry(
+        event_id varchar(50) not null,
+        event_type_id bigint not null,
+        amount decimal(20, 15) not null,
+        debit_account varchar(60),
+        credit_account varchar(60),
+        cost_center_debit_org varchar(60),
+        cost_center_debit_cost varchar(60),
+        cost_center_credit_org varchar(60),
+        cost_center_credit_cost varchar(60),
+        company_code varchar(50),
+        company_type varchar(50),
+        description varchar(200) not null,
+        primary key(event_id, event_type_id)
+    );
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  labels:
+    com.job.service: mysql-db
+    tier: mysql
+spec:
+  selector: 
+    matchLabels:
+      com.job.service: mysql-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels: 
+        com.job.service: mysql-db
+        tier: mysql
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: mysql-db
+          image: mysql
+          imagePullPolicy: "IfNotPresent"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                 secretKeyRef:
+                   name: mysql-secrets
+                   key: root
+            - name: MYSQL_USER
+              value: admin
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                 secretKeyRef:
+                   name: mysql-secrets
+                   key: accounting                   
+          ports:
+            - name: mysql
+              containerPort: 3306
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+            - name: mysql-initdb
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pv-claim
+        - name: mysql-initdb
+          configMap:
+            name: mysql-init-script    
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  labels:
+    com.job.service: mysql-service
+spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 30001
+  selector:
+    com.job.service: mysql-db
+    tier: mysql
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: 
+  name: mysql-pv-claim
+  labels:
+    com.job.service: mysql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
