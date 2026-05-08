@@ -1,12 +1,12 @@
-package scripts
+package configs
 
-type ErrDuplicatedEntry struct {
+type ErrDuplicatedScript struct {
 	msg string
 }
 
-func (e ErrDuplicatedEntry) Error() string {
+func (e ErrDuplicatedScript) Error() string {
 	if e.msg == "" {
-		return "duplicated entry"
+		return "duplicated script"
 	}
 	return e.msg
 }
@@ -26,5 +26,5 @@ type ErrScriptNotFound struct {
 }
 
 func (e ErrScriptNotFound) Error() string {
-	return "accounting script not found"
+	return "ledger config not found"
 }

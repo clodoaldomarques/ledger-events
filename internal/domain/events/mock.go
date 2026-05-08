@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	scripts "github.com/clodoaldomarques/ledger-events/internal/domain/scripts"
+	configs "github.com/clodoaldomarques/ledger-events/internal/domain/configs"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -72,19 +72,19 @@ func (m *MockApi) EXPECT() *MockApiMockRecorder {
 	return m.recorder
 }
 
-// FindScriptByLevel mocks base method.
-func (m *MockApi) FindScriptByLevel(ctx context.Context, cid, eventTypeID, orgID string, programID int64) (scripts.Script, error) {
+// FindConfigByLevel mocks base method.
+func (m *MockApi) FindConfigByLevel(ctx context.Context, cid, processing_code, orgID string, programID int64) (configs.Config, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindScriptByLevel", ctx, cid, eventTypeID, orgID, programID)
-	ret0, _ := ret[0].(scripts.Script)
+	ret := m.ctrl.Call(m, "FindConfigByLevel", ctx, cid, processing_code, orgID, programID)
+	ret0, _ := ret[0].(configs.Config)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindScriptByLevel indicates an expected call of FindScriptByLevel.
-func (mr *MockApiMockRecorder) FindScriptByLevel(ctx, cid, eventTypeID, orgID, programID interface{}) *gomock.Call {
+// FindConfigByLevel indicates an expected call of FindConfigByLevel.
+func (mr *MockApiMockRecorder) FindConfigByLevel(ctx, cid, processing_code, orgID, programID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindScriptByLevel", reflect.TypeOf((*MockApi)(nil).FindScriptByLevel), ctx, cid, eventTypeID, orgID, programID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindConfigByLevel", reflect.TypeOf((*MockApi)(nil).FindConfigByLevel), ctx, cid, processing_code, orgID, programID)
 }
 
 // MockTopic is a mock of Topic interface.

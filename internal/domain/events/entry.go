@@ -9,7 +9,5 @@ type Entry struct {
 	Amount        decimal.Decimal
 	DebitAccount  string
 	CreditAccount string
-	CostCenter    *CostCenter
-	Company       Company
 	Description   string
 }

@@ -8,22 +8,22 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/clodoaldomarques/ledger-events/configs"
-	"github.com/clodoaldomarques/ledger-events/internal/domain/scripts"
+	"github.com/clodoaldomarques/ledger-events/config"
+	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
 	"github.com/clodoaldomarques/ledger-events/pkg/logger"
 	"github.com/sony/gobreaker"
 )
 
-type AccountScriptsApi struct {
+type LedgerConfigApi struct {
 	baseUrl        string
 	httpClient     *http.Client
 	circuitBreaker *gobreaker.CircuitBreaker
 }
 
-func New(ctx context.Context) *AccountScriptsApi {
-	baseUrl := configs.New().LedgerConfigApiUrl
+func New(ctx context.Context) *LedgerConfigApi {
+	baseUrl := config.New().LedgerConfigApiUrl
 	cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
-		Name:    "AccountingScriptsAPI",
+		Name:    "LedgerConfigAPI",
 		Timeout: 15 * time.Second,
 		ReadyToTrip: func(counts gobreaker.Counts) bool {
 			return counts.ConsecutiveFailures > 5
@@ -36,19 +36,19 @@ func New(ctx context.Context) *AccountScriptsApi {
 		},
 	})
 
-	return &AccountScriptsApi{
+	return &LedgerConfigApi{
 		baseUrl:        baseUrl,
 		httpClient:     &http.Client{},
 		circuitBreaker: cb,
 	}
 }
 
-func (a AccountScriptsApi) FindScriptByLevel(ctx context.Context, cid string, eventTypeID string, orgID string, programID int64) (scripts.Script, error) {
+func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, processing_code string, orgID string, programID int64) (configs.Config, error) {
 	response, err := a.circuitBreaker.Execute(func() (interface{}, error) {
-		url := fmt.Sprintf("%s/v1/accounting/scripts/%s/%d", a.baseUrl, eventTypeID, programID)
+		url := fmt.Sprintf("%s/v1/ledger/config/%s/%d", a.baseUrl, processing_code, programID)
 		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 		if err != nil {
-			return scripts.Script{}, err
+			return configs.Config{}, err
 		}
 		req.Header.Add("Content-Type", "application/json")
 		req.Header.Add("x-cid", cid)
@@ -56,35 +56,35 @@ func (a AccountScriptsApi) FindScriptByLevel(ctx context.Context, cid string, ev
 
 		resp, err := a.httpClient.Do(req)
 		if err != nil {
-			return scripts.Script{}, err
+			return configs.Config{}, err
 		}
 		defer resp.Body.Close()
 
 		if resp.StatusCode == http.StatusNotFound {
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
-				return scripts.Script{}, fmt.Errorf("error on read response: %w", err)
+				return configs.Config{}, fmt.Errorf("error on read response: %w", err)
 			}
 
 			var errResp ErrResponse
 			if err := json.Unmarshal(body, &errResp); err != nil {
-				return scripts.Script{}, fmt.Errorf("unmarshal error: %s", err.Error())
+				return configs.Config{}, fmt.Errorf("unmarshal error: %s", err.Error())
 			}
-			return scripts.Script{}, errResp
+			return configs.Config{}, errResp
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			return scripts.Script{}, fmt.Errorf("api error: status %d", resp.StatusCode)
+			return configs.Config{}, fmt.Errorf("api error: status %d", resp.StatusCode)
 		}
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return scripts.Script{}, fmt.Errorf("erro on read response: %w", err)
+			return configs.Config{}, fmt.Errorf("erro on read response: %w", err)
 		}
 
-		var scriptResponse ScriptResponse
+		var scriptResponse ConfigResponse
 		if err := json.Unmarshal(body, &scriptResponse); err != nil {
-			return scripts.Script{}, fmt.Errorf("unmarshal erro: %s", err.Error())
+			return configs.Config{}, fmt.Errorf("unmarshal erro: %s", err.Error())
 		}
 
 		return scriptResponse.ToEntity(), nil
@@ -92,12 +92,12 @@ func (a AccountScriptsApi) FindScriptByLevel(ctx context.Context, cid string, ev
 	})
 
 	if err != nil {
-		return scripts.Script{}, err
+		return configs.Config{}, err
 	}
 
-	return response.(scripts.Script), nil
+	return response.(configs.Config), nil
 }
 
-func (a AccountScriptsApi) Close() {
+func (a LedgerConfigApi) Close() {
 	a.httpClient.CloseIdleConnections()
 }

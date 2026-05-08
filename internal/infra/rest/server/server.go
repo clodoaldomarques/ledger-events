@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/clodoaldomarques/ledger-events/internal/infra/rest/accounting"
+	"github.com/clodoaldomarques/ledger-events/internal/infra/rest/ledger"
 	"github.com/clodoaldomarques/ledger-events/internal/infra/rest/shared"
 	"github.com/clodoaldomarques/ledger-events/pkg/logger"
 	"github.com/go-playground/validator"
@@ -28,7 +28,7 @@ func (s Server) routes() {
 
 	// health check
 	s.http.GET("/", HealthCheck)
-	s.http.POST("/v1/accounting/events", accounting.CreateEvent)
+	s.http.POST("/v1/ledger/events", ledger.CreateEvent)
 }
 
 func (s Server) Start(port int) error {

@@ -26,5 +26,5 @@ type ErrScriptNotFound struct {
 }
 
 func (e ErrScriptNotFound) Error() string {
-	return "accounting script not found"
+	return "ledger config not found"
 }

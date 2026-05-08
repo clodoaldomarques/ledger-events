@@ -1,4 +1,4 @@
-package configs
+package config
 
 import (
 	"fmt"
@@ -36,12 +36,12 @@ func New(options ...Option) *Config {
 			MySqlDBPass:        GetString("MYSQL_PASSWORD", "4cc40t1ng"),
 			MySqlDBHost:        GetString("MYSQL_HOST", "192.168.49.2"),
 			MySqlDBPort:        GetString("MYSQL_PORT", "30001"),
-			MysqlDBName:        GetString("MYSQL_DATABASE", "accounting"),
+			MysqlDBName:        GetString("MYSQL_DATABASE", "ledger"),
 			AwsAddress:         GetString("AWS_ADDRESS", "http://192.168.49.2:30002"),
 			AwsRegion:          GetString("AWS_REGION", "us-east-1"),
 			AccessKeyID:        GetString("AWS_ACCESS_KEY_ID", "test"),
 			SecretAccessKey:    GetString("AWS_SECRET_ACCESS_KEY", "test"),
-			LedgerConfigApiUrl: GetString("ACCOUNTING_SCRIPTS_API_URL", "http://192.168.49.2:31000"),
+			LedgerConfigApiUrl: GetString("LEDGER_CONFIG_API_URL", "http://192.168.49.2:31000"),
 		}
 	})
 
@@ -69,7 +69,7 @@ func WithAwsRegion(awsRegion string) Option {
 	}
 }
 
-func WithAccountScriptsApiUrl(ledgerConfigApiUrl string) Option {
+func WithLedgerConfigApiUrl(ledgerConfigApiUrl string) Option {
 	return func(c *Config) {
 		c.LedgerConfigApiUrl = ledgerConfigApiUrl
 	}

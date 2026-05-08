@@ -3,7 +3,7 @@ package events
 import (
 	"context"
 
-	"github.com/clodoaldomarques/ledger-events/internal/domain/scripts"
+	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
 )
 
 //go:generate mockgen -source=interfaces.go -destination=mock.go -package=events
@@ -12,7 +12,7 @@ type Repository interface {
 }
 
 type Api interface {
-	FindScriptByLevel(ctx context.Context, cid string, eventTypeID string, orgID string, programID int64) (scripts.Script, error)
+	FindConfigByLevel(ctx context.Context, cid string, processing_code string, orgID string, programID int64) (configs.Config, error)
 }
 
 type Topic interface {

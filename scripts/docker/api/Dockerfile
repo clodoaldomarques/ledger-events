@@ -8,14 +8,14 @@ RUN go mod download
 
 COPY . .
 COPY cmd/main.go .
-RUN go build -o /accounting-events-api
+RUN go build -o /ledger-events
 
 ## deploy
 FROM ubuntu AS base
 
 WORKDIR /
 
-COPY --from=build /accounting-events-api /accounting-events-api
+COPY --from=build /ledger-events /ledger-events
 
 #AWS 
 ENV AWS_ADDRESS="http://192.168.49.2:4566"
@@ -23,4 +23,4 @@ ENV AWS_REGION="us-east-1"
 
 EXPOSE 5001
 
-ENTRYPOINT [ "/accounting-events-api" ]
+ENTRYPOINT [ "/ledger-events" ]

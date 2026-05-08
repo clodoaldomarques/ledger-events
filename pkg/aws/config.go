@@ -6,10 +6,10 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/clodoaldomarques/ledger-events/configs"
+	econfig "github.com/clodoaldomarques/ledger-events/config"
 )
 
-func NewCustomCredentials(c *configs.Config) aws.CredentialsProvider {
+func NewCustomCredentials(c *econfig.Config) aws.CredentialsProvider {
 	return aws.NewCredentialsCache(aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
 		creds := aws.Credentials{
 			AccessKeyID:     c.AccessKeyID,
@@ -25,9 +25,9 @@ func NewCustomCredentials(c *configs.Config) aws.CredentialsProvider {
 
 func NewCustomConfig(ctx context.Context) (aws.Config, error) {
 	cfg, err := config.LoadDefaultConfig(ctx,
-		config.WithRegion(configs.New().AwsRegion),
-		config.WithBaseEndpoint(configs.New().AwsAddress),
-		config.WithCredentialsProvider(NewCustomCredentials(configs.New())),
+		config.WithRegion(econfig.New().AwsRegion),
+		config.WithBaseEndpoint(econfig.New().AwsAddress),
+		config.WithCredentialsProvider(NewCustomCredentials(econfig.New())),
 	)
 
 	if err != nil {

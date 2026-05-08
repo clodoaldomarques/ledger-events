@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: accounting-events-app
+  name: ledger-events-app
   labels:
-    com.job.service: accounting-events-app
+    com.job.service: ledger-events-app
     tier: golang
 spec:
   selector: 
     matchLabels:
-      com.job.service: accounting-events-app
+      com.job.service: ledger-events-app
   strategy:
     type: Recreate
   template:
     metadata:
       labels: 
-        com.job.service: accounting-events-app
+        com.job.service: ledger-events-app
         tier: golang
     spec:
       serviceAccountName: default
       containers:
-        - name: accounting-events-app
-          image: clodoaldomarques/accounting-events-api:latest
+        - name: ledger-events-app
+          image: clodoaldomarques/ledger-events:latest
           imagePullPolicy: "Always"
           env:          
             - name: AWS_ADDRESS
@@ -44,9 +44,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: accounting-events-app-service
+  name: ledger-events-app-service
   labels:
-    com.job.service: accounting-events-app-service
+    com.job.service: ledger-events-app-service
 spec:
   type: LoadBalancer
   ports:
@@ -54,5 +54,5 @@ spec:
       targetPort: 5001
       nodePort: 31001
   selector:
-    com.job.service: accounting-events-app
+    com.job.service: ledger-events-app
     tier: golang
