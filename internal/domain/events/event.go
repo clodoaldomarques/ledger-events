@@ -1,6 +1,7 @@
 package events
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
@@ -21,6 +22,9 @@ type Event struct {
 }
 
 func (e Event) Validate() error {
+	if len(e.Entries) == 0 {
+		return ErrEntryNotFound{fmt.Sprintf("entry not found to producer %s", e.Producer)}
+	}
 	return nil
 }
 
