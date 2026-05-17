@@ -4,10 +4,8 @@ metadata:
   name: mysql-init-script
 data:
   init-db.sql: |
-    -- Criação de duas bases de dados
     CREATE DATABASE IF NOT EXISTS ledger;
 
-    -- Criação de um usuário e concessão de privilégios
     GRANT ALL PRIVILEGES ON ledger.* TO 'admin'@'%';
     FLUSH PRIVILEGES;
 
