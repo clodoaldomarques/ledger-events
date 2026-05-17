@@ -15,7 +15,8 @@ push:
 publish: build push
 
 kube-secrets:
-	kubectl create secret generic mysql-secrets --from-literal=root='a1s2d3f4' --from-literal=accounting='4cc40t1ng'
+	kubectl create secret generic mysql-ledger --from-literal=root='a1s2d3f4' --from-literal=ledger='l3dg3r'
+
 
 kube-create:
 	kubectl apply -f scripts/k8s/mysql-service.yaml

@@ -33,7 +33,7 @@ func New(options ...Option) *Config {
 		instance = &Config{
 			AppPort:            GetInt("APP_PORT", 8080),
 			MySqlDBUser:        GetString("MYSQL_USER", "admin"),
-			MySqlDBPass:        GetString("MYSQL_PASSWORD", "4cc40t1ng"),
+			MySqlDBPass:        GetString("MYSQL_PASSWORD", "l3dg3r"),
 			MySqlDBHost:        GetString("MYSQL_HOST", "192.168.49.2"),
 			MySqlDBPort:        GetString("MYSQL_PORT", "30001"),
 			MysqlDBName:        GetString("MYSQL_DATABASE", "ledger"),
