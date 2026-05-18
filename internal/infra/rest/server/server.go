@@ -26,6 +26,13 @@ func New() *Server {
 func (s Server) routes() {
 	s.http.Validator = &CustomValidator{validator: validator.New()}
 
+	// logger interceptor
+	s.http.Use(InterceptorWithConfig(InterceptorConfig{
+		MaxBodySize:     5 * 1024,
+		LogRequestBody:  true,
+		LogResponseBody: false, // ligue só para debug
+		RedactFields:    []string{"password", "token", "credit_card"},
+	}))
 	// health check
 	s.http.GET("/", HealthCheck)
 	s.http.POST("/v1/ledger/events", ledger.CreateEvent)
