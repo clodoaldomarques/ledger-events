@@ -14,17 +14,13 @@ push:
 
 publish: build push
 
-kube-secrets:
-	kubectl create secret generic mysql-ledger --from-literal=root='a1s2d3f4' --from-literal=ledger='l3dg3r'
+kube-apply:
+	kubectl apply -f scripts/k8s/
 
+kube-destroy:
+	kubectl delete -f scripts/k8s/ --ignore-not-found
 
-kube-create:
-	kubectl apply -f scripts/k8s/mysql-service.yaml
-	kubectl apply -f scripts/k8s/app-service.yaml
-
-kube-delete:
-	kubectl delete -f scripts/k8s/mysql-service.yaml
-	kubectl delete -f scripts/k8s/app-service.yaml
+kube-restart: kube-destroy kube-apply
 
 terraform:
 	until nc -z 192.168.49.2 30002; do echo waiting for localstack; sleep 2; done;
