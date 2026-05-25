@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/clodoaldomarques/core-sdk/pkg/logger"
 	"github.com/clodoaldomarques/ledger-events/config"
 	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
-	"github.com/clodoaldomarques/ledger-events/pkg/logger"
 	"github.com/sony/gobreaker"
 )
 

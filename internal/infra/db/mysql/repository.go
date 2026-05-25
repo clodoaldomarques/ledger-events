@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/clodoaldomarques/core-sdk/pkg/logger"
 	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
-	"github.com/clodoaldomarques/ledger-events/pkg/logger"
 )
 
 var (

@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/clodoaldomarques/core-sdk/pkg/logger"
 	"github.com/clodoaldomarques/ledger-events/config"
 	"github.com/clodoaldomarques/ledger-events/internal/infra/rest/server"
-	"github.com/clodoaldomarques/ledger-events/pkg/logger"
 )
 
 func main() {
