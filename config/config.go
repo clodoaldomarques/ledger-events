@@ -16,8 +16,8 @@ type Config struct {
 	MysqlDBName        string
 	AwsAddress         string
 	AwsRegion          string
-	AccessKeyID        string
-	SecretAccessKey    string
+	AwsAccessKeyID     string
+	AwsSecretAccessKey string
 	LedgerConfigApiUrl string
 }
 
@@ -39,8 +39,8 @@ func New(options ...Option) *Config {
 			MysqlDBName:        GetString("MYSQL_DATABASE", "ledger"),
 			AwsAddress:         GetString("AWS_ADDRESS", "http://192.168.49.2:30002"),
 			AwsRegion:          GetString("AWS_REGION", "us-east-1"),
-			AccessKeyID:        GetString("AWS_ACCESS_KEY_ID", "test"),
-			SecretAccessKey:    GetString("AWS_SECRET_ACCESS_KEY", "test"),
+			AwsAccessKeyID:     GetString("AWS_ACCESS_KEY_ID", "test"),
+			AwsSecretAccessKey: GetString("AWS_SECRET_ACCESS_KEY", "test"),
 			LedgerConfigApiUrl: GetString("LEDGER_CONFIG_API_URL", "http://192.168.49.2:31000"),
 		}
 	})
@@ -73,6 +73,20 @@ func WithLedgerConfigApiUrl(ledgerConfigApiUrl string) Option {
 	return func(c *Config) {
 		c.LedgerConfigApiUrl = ledgerConfigApiUrl
 	}
+}
+
+func (c Config) Region() string {
+	return c.AwsRegion
+}
+
+func (c Config) Address() string {
+	return c.AwsAddress
+}
+func (c Config) AccessKeyID() string {
+	return c.AwsAccessKeyID
+}
+func (c Config) SecretAccessKey() string {
+	return c.AwsSecretAccessKey
 }
 
 func GetString(env string, def string) string {

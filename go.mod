@@ -5,7 +5,7 @@ go 1.26.1
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.7
 	github.com/aws/aws-sdk-go-v2/config v1.32.18
-	github.com/clodoaldomarques/core-sdk v0.1.0
+	github.com/clodoaldomarques/core-sdk v0.2.0
 	github.com/expr-lang/expr v1.17.8
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-sql-driver/mysql v1.10.0

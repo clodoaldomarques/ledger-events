@@ -38,6 +38,8 @@ github.com/clodoaldomarques/core-sdk v0.0.0-20260525001040-2a37b80892bb h1:NkT+7
 github.com/clodoaldomarques/core-sdk v0.0.0-20260525001040-2a37b80892bb/go.mod h1:4avNVVQjmqJS+u7St0mFIK93Srjxd6lMLytfpqdzu/0=
 github.com/clodoaldomarques/core-sdk v0.1.0 h1:OJ2rmxFEO+hYGcblvZUIcTHgxAnNGuVowyBhNM4uumQ=
 github.com/clodoaldomarques/core-sdk v0.1.0/go.mod h1:4avNVVQjmqJS+u7St0mFIK93Srjxd6lMLytfpqdzu/0=
+github.com/clodoaldomarques/core-sdk v0.2.0 h1:ant2I6Bo2MXPFdZ6nEi/5LgEOic95++GJPuXwPOoABo=
+github.com/clodoaldomarques/core-sdk v0.2.0/go.mod h1:4avNVVQjmqJS+u7St0mFIK93Srjxd6lMLytfpqdzu/0=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
