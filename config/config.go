@@ -18,6 +18,7 @@ type Config struct {
 	AwsRegion          string
 	AwsAccessKeyID     string
 	AwsSecretAccessKey string
+	EventTopic         string
 	LedgerConfigApiUrl string
 }
 
@@ -41,6 +42,7 @@ func New(options ...Option) *Config {
 			AwsRegion:          GetString("AWS_REGION", "us-east-1"),
 			AwsAccessKeyID:     GetString("AWS_ACCESS_KEY_ID", "test"),
 			AwsSecretAccessKey: GetString("AWS_SECRET_ACCESS_KEY", "test"),
+			EventTopic:         GetString("EVENT_SNS_TOPIC", "events-sns-topic"),
 			LedgerConfigApiUrl: GetString("LEDGER_CONFIG_API_URL", "http://192.168.49.2:31000"),
 		}
 	})
@@ -87,6 +89,10 @@ func (c Config) AccessKeyID() string {
 }
 func (c Config) SecretAccessKey() string {
 	return c.AwsSecretAccessKey
+}
+
+func (c Config) TopicARN() string {
+	return c.EventTopic
 }
 
 func GetString(env string, def string) string {
