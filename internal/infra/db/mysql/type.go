@@ -7,20 +7,20 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type Event struct {
-	EventID        string    `json:"event_id"`
-	CorrelationID  string    `json:"correlation_id"`
-	OrgID          string    `json:"org_id"`
-	ProcessingCode string    `json:"processing_code"`
-	ProgramID      int64     `json:"program_id"`
-	AccountID      int64     `json:"account_id"`
-	Description    string    `json:"description"`
-	Producer       string    `json:"producer"`
-	CreatedAt      time.Time `json:"created_at"`
-	Entries        []Entry   `json:"entries"`
+type EventTable struct {
+	EventID        string       `json:"event_id"`
+	CorrelationID  string       `json:"correlation_id"`
+	OrgID          string       `json:"org_id"`
+	ProcessingCode string       `json:"processing_code"`
+	ProgramID      int64        `json:"program_id"`
+	AccountID      int64        `json:"account_id"`
+	Description    string       `json:"description"`
+	Producer       string       `json:"producer"`
+	CreatedAt      time.Time    `json:"created_at"`
+	Entries        []EntryTable `json:"entries"`
 }
 
-type Entry struct {
+type EntryTable struct {
 	EventID       string          `json:"event_id"`
 	EntryTypeID   int64           `json:"event_type_id"`
 	Amount        decimal.Decimal `json:"amount"`
@@ -29,8 +29,8 @@ type Entry struct {
 	Description   string          `json:"description"`
 }
 
-func buildEventTable(cid string, e events.Event) (Event, error) {
-	evt := Event{
+func buildEventTable(cid string, e events.Event) (EventTable, error) {
+	evt := EventTable{
 		EventID:        e.EventID,
 		CorrelationID:  cid,
 		OrgID:          e.OrgID,
@@ -40,13 +40,13 @@ func buildEventTable(cid string, e events.Event) (Event, error) {
 		Description:    e.Description,
 		Producer:       e.Producer,
 		CreatedAt:      e.CreatedAt,
-		Entries:        make([]Entry, 0, len(e.Entries)),
+		Entries:        make([]EntryTable, 0, len(e.Entries)),
 	}
 
 	for _, en := range e.Entries {
 		ent, err := buildEntryTable(e.EventID, en)
 		if err != nil {
-			return Event{}, err
+			return EventTable{}, err
 		}
 		evt.Entries = append(evt.Entries, ent)
 	}
@@ -54,8 +54,8 @@ func buildEventTable(cid string, e events.Event) (Event, error) {
 	return evt, nil
 }
 
-func buildEntryTable(eventID string, e events.Entry) (Entry, error) {
-	ent := Entry{
+func buildEntryTable(eventID string, e events.Entry) (EntryTable, error) {
+	ent := EntryTable{
 		EventID:       eventID,
 		EntryTypeID:   e.EntryTypeID,
 		Amount:        e.Amount,

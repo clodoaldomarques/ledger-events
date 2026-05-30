@@ -52,7 +52,7 @@ spec:
                   key: AWS_SECRET_ACCESS_KEY 
             - name: AWS_REGION
               value: "us-east-1"              
-            - name: EVENT_SNS_TOPIC
+            - name: EVENTS_SNS_TOPIC
               value: "arn:aws:sns:us-east-1:000000000000:events-sns-topic"
             - name: LEDGER_CONFIG_API_URL
               value: "http://ledger-config-app-service:5000"

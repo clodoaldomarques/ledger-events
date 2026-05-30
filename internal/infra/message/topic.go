@@ -2,10 +2,12 @@ package message
 
 import (
 	"context"
+	"time"
 
 	"github.com/clodoaldomarques/core-sdk/pkg/sns"
 	"github.com/clodoaldomarques/ledger-events/config"
 	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
+	"github.com/google/uuid"
 )
 
 type Topic struct {
@@ -19,7 +21,13 @@ func New(ctx context.Context) *Topic {
 }
 
 func (t Topic) Emit(ctx context.Context, cid string, e events.Event) error {
-	return nil
+	evt := sns.Event{
+		EventID:   uuid.New(),
+		EventType: "ledger",
+		EventData: e,
+		EventDate: time.Now(),
+	}
+	return t.p.Emit(ctx, evt)
 }
 
 func (t Topic) Close() {

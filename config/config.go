@@ -33,17 +33,17 @@ func New(options ...Option) *Config {
 	singleton.Do(func() {
 		instance = &Config{
 			AppPort:            GetInt("APP_PORT", 8080),
-			MySqlDBUser:        GetString("MYSQL_USER", "admin"),
-			MySqlDBPass:        GetString("MYSQL_PASSWORD", "l3dg3r"),
-			MySqlDBHost:        GetString("MYSQL_HOST", "192.168.49.2"),
-			MySqlDBPort:        GetString("MYSQL_PORT", "30001"),
-			MysqlDBName:        GetString("MYSQL_DATABASE", "ledger"),
-			AwsAddress:         GetString("AWS_ADDRESS", "http://192.168.49.2:30002"),
-			AwsRegion:          GetString("AWS_REGION", "us-east-1"),
-			AwsAccessKeyID:     GetString("AWS_ACCESS_KEY_ID", "test"),
-			AwsSecretAccessKey: GetString("AWS_SECRET_ACCESS_KEY", "test"),
-			EventTopic:         GetString("EVENT_SNS_TOPIC", "events-sns-topic"),
-			LedgerConfigApiUrl: GetString("LEDGER_CONFIG_API_URL", "http://192.168.49.2:31000"),
+			MySqlDBUser:        GetString("MYSQL_USER", ""),
+			MySqlDBPass:        GetString("MYSQL_PASSWORD", ""),
+			MySqlDBHost:        GetString("MYSQL_HOST", ""),
+			MySqlDBPort:        GetString("MYSQL_PORT", ""),
+			MysqlDBName:        GetString("MYSQL_DATABASE", ""),
+			AwsAddress:         GetString("AWS_ADDRESS", ""),
+			AwsRegion:          GetString("AWS_REGION", ""),
+			AwsAccessKeyID:     GetString("AWS_ACCESS_KEY_ID", ""),
+			AwsSecretAccessKey: GetString("AWS_SECRET_ACCESS_KEY", ""),
+			EventTopic:         GetString("EVENTS_SNS_TOPIC", ""),
+			LedgerConfigApiUrl: GetString("LEDGER_CONFIG_API_URL", ""),
 		}
 	})
 
