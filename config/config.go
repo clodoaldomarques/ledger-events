@@ -90,7 +90,6 @@ func (c Config) AccessKeyID() string {
 func (c Config) SecretAccessKey() string {
 	return c.AwsSecretAccessKey
 }
-
 func (c Config) TopicARN() string {
 	return c.EventTopic
 }
