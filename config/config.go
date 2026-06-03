@@ -2,9 +2,9 @@ package config
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 	"sync"
+
+	"github.com/clodoaldomarques/core-sdk/pkg/env"
 )
 
 type Config struct {
@@ -32,18 +32,18 @@ var (
 func New(options ...Option) *Config {
 	singleton.Do(func() {
 		instance = &Config{
-			AppPort:            GetInt("APP_PORT", 8080),
-			MySqlDBUser:        GetString("MYSQL_USER", ""),
-			MySqlDBPass:        GetString("MYSQL_PASSWORD", ""),
-			MySqlDBHost:        GetString("MYSQL_HOST", ""),
-			MySqlDBPort:        GetString("MYSQL_PORT", ""),
-			MysqlDBName:        GetString("MYSQL_DATABASE", ""),
-			AwsAddress:         GetString("AWS_ADDRESS", ""),
-			AwsRegion:          GetString("AWS_REGION", ""),
-			AwsAccessKeyID:     GetString("AWS_ACCESS_KEY_ID", ""),
-			AwsSecretAccessKey: GetString("AWS_SECRET_ACCESS_KEY", ""),
-			EventTopic:         GetString("EVENTS_SNS_TOPIC", ""),
-			LedgerConfigApiUrl: GetString("LEDGER_CONFIG_API_URL", ""),
+			AppPort:            env.GetInt("APP_PORT", 8080),
+			MySqlDBUser:        env.GetString("MYSQL_USER", ""),
+			MySqlDBPass:        env.GetString("MYSQL_PASSWORD", ""),
+			MySqlDBHost:        env.GetString("MYSQL_HOST", ""),
+			MySqlDBPort:        env.GetString("MYSQL_PORT", ""),
+			MysqlDBName:        env.GetString("MYSQL_DATABASE", ""),
+			AwsAddress:         env.GetString("AWS_ADDRESS", ""),
+			AwsRegion:          env.GetString("AWS_REGION", ""),
+			AwsAccessKeyID:     env.GetString("AWS_ACCESS_KEY_ID", ""),
+			AwsSecretAccessKey: env.GetString("AWS_SECRET_ACCESS_KEY", ""),
+			EventTopic:         env.GetString("EVENTS_SNS_TOPIC", ""),
+			LedgerConfigApiUrl: env.GetString("LEDGER_CONFIG_API_URL", ""),
 		}
 	})
 
@@ -92,21 +92,6 @@ func (c Config) SecretAccessKey() string {
 }
 func (c Config) TopicARN() string {
 	return c.EventTopic
-}
-
-func GetString(env string, def string) string {
-	if e := os.Getenv(env); e != "" {
-		return e
-	}
-	return def
-}
-
-func GetInt(env string, def int) int {
-	i, err := strconv.Atoi(os.Getenv(env))
-	if err != nil {
-		return def
-	}
-	return i
 }
 
 func (c Config) GetMySQLConnectionString() string {
