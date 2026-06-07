@@ -101,7 +101,7 @@ spec:
             - name: LEDGER_CONFIG_API_URL
               value: http://ledger-config-app-service:5000
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://otel-collector-service:4318"
+              value: "otel-collector-service:4317"
             - name: OTEL_SERVICE_NAME
               value: "ledger-events"             
           ports:
