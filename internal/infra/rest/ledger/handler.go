@@ -23,7 +23,7 @@ func CreateEvent(c echo.Context) error {
 	defer r.Close()
 
 	t := message.New(ctx)
-	defer t.Close()
+	defer t.Close(ctx)
 
 	s := events.New(a, r, t)
 

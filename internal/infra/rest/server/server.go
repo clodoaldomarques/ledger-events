@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -33,6 +34,7 @@ func (s Server) routes() {
 		LogResponseBody: false, // ligue só para debug
 		RedactFields:    []string{"password", "token", "credit_card"},
 	}))
+
 	// health check
 	s.http.GET("/", HealthCheck)
 	s.http.POST("/v1/ledger/events", ledger.CreateEvent)
@@ -42,8 +44,11 @@ func (s Server) Start(port int) error {
 	return s.http.Start(fmt.Sprintf(":%d", port))
 }
 
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.http.Shutdown(ctx)
+}
+
 func HealthCheck(c echo.Context) error {
-	logger.Info(c.Request().Context(), "health check", logger.Fields{})
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"data": "Server is up and running",
 	})

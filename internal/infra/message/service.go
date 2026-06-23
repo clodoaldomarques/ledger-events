@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/clodoaldomarques/core-sdk/pkg/logger"
 	"github.com/clodoaldomarques/core-sdk/pkg/sns"
 	"github.com/clodoaldomarques/ledger-events/config"
 	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
@@ -30,6 +31,6 @@ func (t Topic) Emit(ctx context.Context, cid string, e events.Event) error {
 	return t.p.Emit(ctx, evt)
 }
 
-func (t Topic) Close() {
-
+func (t Topic) Close(ctx context.Context) {
+	logger.Info(ctx, "ending topic connection", logger.Fields{})
 }
