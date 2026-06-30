@@ -9,7 +9,7 @@ import (
 func ProcessRegular(c configs.Config, e *Event, amounts, fees map[string]decimal.Decimal) error {
 	e.Description = c.Description
 
-	for _, en := range c.RetrieveEntryByProducer(configs.Migration) {
+	for _, en := range c.RetrieveEntryByProducer(configs.Regular) {
 		calculated, err := expression.Calculate(en.Expression, amounts, fees)
 		if err != nil {
 			return err
