@@ -25,7 +25,7 @@ func (t Topic) Emit(ctx context.Context, cid string, e events.Event) error {
 	evt := sns.Event{
 		EventID:   uuid.New(),
 		EventType: "ledger",
-		EventData: e,
+		EventData: ToEventMessage(e),
 		EventDate: time.Now(),
 	}
 	return t.p.Emit(ctx, evt)
