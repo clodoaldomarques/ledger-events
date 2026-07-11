@@ -1,8 +1,8 @@
 package events
 
 import (
+	"github.com/clodoaldomarques/core-sdk/pkg/expression"
 	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
-	"github.com/clodoaldomarques/ledger-events/internal/domain/expression"
 	"github.com/shopspring/decimal"
 )
 

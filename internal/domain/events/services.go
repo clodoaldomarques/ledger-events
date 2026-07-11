@@ -10,12 +10,12 @@ import (
 )
 
 type Service struct {
-	api Api
+	api ConfigApi
 	rep Repository
 	top Topic
 }
 
-func New(a Api, r Repository, t Topic) *Service {
+func New(a ConfigApi, r Repository, t Topic) *Service {
 	return &Service{
 		rep: r,
 		api: a,
