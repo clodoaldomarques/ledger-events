@@ -23,7 +23,7 @@ func TestService_CreateEvent(t *testing.T) {
 			name: "when calculate various values and save event with success",
 			setup: func(ctrl *gomock.Controller) *Service {
 				a := NewMockApi(ctrl)
-				scr := fakeScript("(Amount.amount + Fee.iof) * (Fee.tax / Fee.iof) - Fee.tax")
+				scr := fakeScript("(Amounts.amount + Fees.iof) * (Fees.tax / Fees.iof) - Fees.tax")
 				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(scr, nil).Times(1)
 
 				r := NewMockRepository(ctrl)
@@ -47,7 +47,7 @@ func TestService_CreateEvent(t *testing.T) {
 			name: "when pass single value and save event with success",
 			setup: func(ctrl *gomock.Controller) *Service {
 				a := NewMockApi(ctrl)
-				scr := fakeScript("Amount.amount")
+				scr := fakeScript("Amounts.amount")
 				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(scr, nil).Times(1)
 
 				r := NewMockRepository(ctrl)

@@ -3,8 +3,7 @@ module github.com/clodoaldomarques/ledger-events
 go 1.26.1
 
 require (
-	github.com/clodoaldomarques/core-sdk v0.5.4
-	github.com/expr-lang/expr v1.17.8
+	github.com/clodoaldomarques/core-sdk v0.5.11
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/golang/mock v1.6.0
@@ -36,6 +35,7 @@ require (
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/expr-lang/expr v1.17.8 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect

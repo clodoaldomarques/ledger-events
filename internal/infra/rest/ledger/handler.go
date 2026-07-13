@@ -5,7 +5,7 @@ import (
 
 	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
 	"github.com/clodoaldomarques/ledger-events/internal/infra/db/mysql"
-	ledgerConfig "github.com/clodoaldomarques/ledger-events/internal/infra/ledger/config"
+	configApi "github.com/clodoaldomarques/ledger-events/internal/infra/ledger/config"
 	"github.com/clodoaldomarques/ledger-events/internal/infra/message"
 	"github.com/clodoaldomarques/ledger-events/internal/infra/rest/shared"
 	"github.com/google/uuid"
@@ -16,7 +16,7 @@ func CreateEvent(c echo.Context) error {
 	orgID, cid := getHeaders(c)
 	ctx := c.Request().Context()
 
-	a := ledgerConfig.New(ctx)
+	a := configApi.New(ctx)
 	defer a.Close()
 
 	r := mysql.NewRepository(ctx)
