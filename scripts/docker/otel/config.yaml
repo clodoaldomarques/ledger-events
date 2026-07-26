@@ -16,7 +16,7 @@ exporters:
   debug:
     verbosity: detailed
   zipkin:
-    endpoint: "http://zipkin:9411/api/v2/spans"
+    endpoint: "http://localhost:9411/api/v2/spans"
     format: "json"
     # TLS desabilitado para ambiente local
 

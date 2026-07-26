@@ -2,10 +2,11 @@ api = ledger-events
 repository = clodoaldomarques
 
 up: 
-	docker compose up -d 
+	docker compose up -d --wait
+	terraform
 
 down: 
-	docker compose down
+	docker compose down -v
 
 run:
 	go run cmd/main.go
@@ -24,6 +25,9 @@ version:
 	docker images | grep $(api)
 
 restart: down up
+
+logs:
+	docker compose logs $(container)
 
 terraform:
 	@if [ ! -d "scripts/terraform/.terraform" ]; then \
