@@ -16,23 +16,24 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+	opentelemetry.Start(ctx)
+
 	s := server.New()
 	go func() {
 		c := config.New(config.WithAppPort(5001))
 		err := s.Start(c.AppPort)
 		if err != http.ErrServerClosed {
-			logger.Fatal(context.Background(), err.Error(), logger.Fields{})
+			logger.Fatal(ctx, err.Error(), logger.Fields{})
 		}
 	}()
-
-	opentelemetry.Start(context.Background())
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	fmt.Println("Recebido sinal de desligamento, iniciando graceful shutdown...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 25*time.Second)
 	defer cancel()
 
 	if err := s.Shutdown(ctx); err != nil {
