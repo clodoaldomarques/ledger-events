@@ -32,7 +32,7 @@ var (
 func New(options ...Option) *Config {
 	singleton.Do(func() {
 		instance = &Config{
-			AppPort:            env.GetInt("APP_PORT", 5000),
+			AppPort:            env.GetInt("APP_PORT", 5002),
 			MySqlDBUser:        env.GetString("MYSQL_USER", ""),
 			MySqlDBPass:        env.GetString("MYSQL_PASSWORD", ""),
 			MySqlDBHost:        env.GetString("MYSQL_HOST", ""),
