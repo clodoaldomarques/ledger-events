@@ -41,8 +41,7 @@ test:
 	go test ./... -coverprofile cover.out
 	go tool cover -html=cover.out
 
-apply: 
-	$(MAKE) terraform
+apply: terraform
 	kubectl apply -f scripts/k8s/
 
 destroy:
