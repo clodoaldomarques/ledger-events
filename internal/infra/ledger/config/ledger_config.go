@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/clodoaldomarques/core-sdk/pkg/logger"
+	"github.com/clodoaldomarques/core-sdk/pkg/tracer"
 	"github.com/clodoaldomarques/ledger-events/config"
 	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
 	"github.com/sony/gobreaker"
@@ -44,10 +45,19 @@ func New(ctx context.Context) *LedgerConfigApi {
 }
 
 func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, processing_code string, orgID string, programID int64) (configs.Config, error) {
+	span, ctx := tracer.NewSpanFromContext(ctx, "LedgerConfigApi::FindConfigByLevel", map[string]any{
+		"cid":             cid,
+		"processing_code": processing_code,
+		"org_id":          orgID,
+		"program_id":      programID,
+	})
+	defer span.End()
+
 	response, err := a.circuitBreaker.Execute(func() (interface{}, error) {
 		url := fmt.Sprintf("%s/v1/ledger/config/%s/%d", a.baseUrl, processing_code, programID)
 		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 		if err != nil {
+			span.SetError(err)
 			return configs.Config{}, err
 		}
 		req.Header.Add("Content-Type", "application/json")
@@ -56,6 +66,7 @@ func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, proc
 
 		resp, err := a.httpClient.Do(req)
 		if err != nil {
+			span.SetError(err)
 			return configs.Config{}, err
 		}
 		defer resp.Body.Close()
@@ -63,27 +74,33 @@ func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, proc
 		if resp.StatusCode == http.StatusNotFound {
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
+				span.SetError(err)
 				return configs.Config{}, fmt.Errorf("error on read response: %w", err)
 			}
 
 			var errResp ErrResponse
 			if err := json.Unmarshal(body, &errResp); err != nil {
+				span.SetError(err)
 				return configs.Config{}, fmt.Errorf("unmarshal error: %s", err.Error())
 			}
+			span.SetError(errResp)
 			return configs.Config{}, errResp
 		}
 
 		if resp.StatusCode != http.StatusOK {
+			span.SetError(fmt.Errorf("api error: status %d", resp.StatusCode))
 			return configs.Config{}, fmt.Errorf("api error: status %d", resp.StatusCode)
 		}
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
+			span.SetError(err)
 			return configs.Config{}, fmt.Errorf("erro on read response: %w", err)
 		}
 
 		var scriptResponse ConfigResponse
 		if err := json.Unmarshal(body, &scriptResponse); err != nil {
+			span.SetError(err)
 			return configs.Config{}, fmt.Errorf("unmarshal erro: %s", err.Error())
 		}
 
@@ -92,6 +109,7 @@ func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, proc
 	})
 
 	if err != nil {
+		span.SetError(err)
 		return configs.Config{}, err
 	}
 

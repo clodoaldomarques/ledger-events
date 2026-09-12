@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/clodoaldomarques/core-sdk/pkg/logger"
+	"github.com/clodoaldomarques/core-sdk/pkg/tracer"
 	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
 )
 
@@ -38,8 +39,15 @@ func (r Repository) Close() {
 }
 
 func (r Repository) SaveEvent(ctx context.Context, cid string, e events.Event) error {
+	span, ctx := tracer.NewSpanFromContext(ctx, "Repository::SaveEvent", map[string]any{
+		"cid":   cid,
+		"event": e,
+	})
+	defer span.End()
+
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
+		span.SetError(err)
 		logger.Error(ctx, "error on start new transaction", logger.Fields{"event": e, "error": err.Error()})
 		return err
 	}
@@ -48,6 +56,7 @@ func (r Repository) SaveEvent(ctx context.Context, cid string, e events.Event) e
 	evt, err := buildEventTable(cid, e)
 	stat, err := tx.Prepare(INSERT_EVENT)
 	if err != nil {
+		span.SetError(err)
 		logger.Error(ctx, "error on prepare statement", logger.Fields{"event": e, "error": err.Error(), "sql": INSERT_EVENT})
 		return err
 	}
@@ -63,12 +72,14 @@ func (r Repository) SaveEvent(ctx context.Context, cid string, e events.Event) e
 		evt.CreatedAt,
 	)
 	if err != nil {
+		span.SetError(err)
 		return err
 	}
 
 	for _, etr := range evt.Entries {
 		stat, err = tx.Prepare(INSERT_ENTRIES)
 		if err != nil {
+			span.SetError(err)
 			logger.Error(ctx, "error on save new entry", logger.Fields{"event": e, "entry": etr, "error": err.Error(), "sql": INSERT_ENTRIES})
 			return err
 		}
@@ -83,6 +94,7 @@ func (r Repository) SaveEvent(ctx context.Context, cid string, e events.Event) e
 			etr.Description,
 		)
 		if err != nil {
+			span.SetError(err)
 			return err
 		}
 	}
