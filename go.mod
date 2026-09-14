@@ -3,7 +3,7 @@ module github.com/clodoaldomarques/ledger-events
 go 1.26.1
 
 require (
-	github.com/clodoaldomarques/core-sdk v0.5.14
+	github.com/clodoaldomarques/core-sdk v0.5.16
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/golang/mock v1.6.0
