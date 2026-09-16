@@ -3,7 +3,7 @@ package events
 import (
 	"context"
 
-	"github.com/clodoaldomarques/core-sdk/pkg/tracer"
+	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
 	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
 	"github.com/shopspring/decimal"
 )

@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/clodoaldomarques/core-sdk/pkg/logger"
+	"github.com/clodoaldomarques/core-sdk/pkg/otel/logger"
 	"github.com/clodoaldomarques/ledger-events/config"
 	_ "github.com/go-sql-driver/mysql"
 )

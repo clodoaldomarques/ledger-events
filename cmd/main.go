@@ -9,15 +9,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/clodoaldomarques/core-sdk/pkg/logger"
-	"github.com/clodoaldomarques/core-sdk/pkg/opentelemetry"
+	"github.com/clodoaldomarques/core-sdk/pkg/otel"
+	"github.com/clodoaldomarques/core-sdk/pkg/otel/logger"
 	"github.com/clodoaldomarques/ledger-events/config"
 	"github.com/clodoaldomarques/ledger-events/internal/infra/rest/server"
 )
 
 func main() {
 	ctx := context.Background()
-	opentelemetry.Start(ctx)
+	otel.Start(ctx)
 
 	s := server.New()
 	go func() {
@@ -42,7 +42,7 @@ func main() {
 		fmt.Println("Servidor HTTP finalizado com sucesso")
 	}
 
-	if err := opentelemetry.Shutdown(ctx); err != nil {
+	if err := otel.Shutdown(ctx); err != nil {
 		fmt.Printf("erro no shutdown do opentelemetry: %v\n", err)
 	}
 
