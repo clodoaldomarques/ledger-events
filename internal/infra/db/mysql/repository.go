@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/clodoaldomarques/core-sdk/pkg/otel/logger"
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
+	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
 	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
 )
 
