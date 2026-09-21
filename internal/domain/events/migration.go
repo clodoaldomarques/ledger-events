@@ -2,32 +2,26 @@ package events
 
 import (
 	"github.com/clodoaldomarques/core-sdk/pkg/expression"
-	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
 	"github.com/shopspring/decimal"
 )
 
-func ProcessMigration(c configs.Config, e *Event, amounts, fees map[string]decimal.Decimal) error {
-	e.Description = c.Description
+func ProcessMigration(c Config, e *Event, amounts, fees map[string]decimal.Decimal) error {
+	e.Description = c.RetrieveDescription()
 
-	for _, en := range c.RetrieveEntryByProducer(configs.Migration) {
-		calculated, err := expression.Calculate(en.Expression, amounts, fees)
+	for _, en := range c.RetrieveEntryByProducer(Migration) {
+		calculated, err := expression.Calculate(en.RetrieveExpression(), amounts, fees)
 		if err != nil {
 			return err
 		}
 
 		entry := Entry{
-			EntryTypeID: en.ScriptID,
+			EntryTypeID: en.RetrieveScriptID(),
 			Amount:      calculated,
-			Description: en.Description,
+			Description: en.RetrieveDescription(),
 		}
 
-		if en.CreditAccount != nil {
-			entry.CreditAccount = en.CreditAccount.Number
-		}
-
-		if en.DebitAccount != nil {
-			entry.DebitAccount = en.DebitAccount.Number
-		}
+		entry.CreditAccount = en.RetrieveCreditAccount()
+		entry.DebitAccount = en.RetrieveDebitAccount()
 
 		e.Entries = append(e.Entries, entry)
 	}

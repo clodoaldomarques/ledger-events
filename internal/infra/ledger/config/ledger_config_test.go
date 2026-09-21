@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/clodoaldomarques/ledger-events/config"
-	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
+	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -46,7 +46,7 @@ func TestAccountconfigsApi_FindScriptByLevel(t *testing.T) {
 		name  string
 		setup func(ctrl *gomock.Controller) *LedgerConfigApi
 		args  func() args
-		want  func(t *testing.T, sc configs.Config, e error)
+		want  func(t *testing.T, sc events.Config, e error)
 	}{
 		{
 			name: "success - retrieve ledger config",
@@ -62,11 +62,11 @@ func TestAccountconfigsApi_FindScriptByLevel(t *testing.T) {
 					programID:       007,
 				}
 			},
-			want: func(t *testing.T, sc configs.Config, e error) {
+			want: func(t *testing.T, sc events.Config, e error) {
 				assert.Nil(t, e)
 				assert.NotNil(t, sc)
-				assert.Equal(t, "725a69c4-ec2c-4f6e-918c-d38c75e37b71", sc.ConfigID)
-				assert.Equal(t, configs.TenantLevel, sc.Level)
+				assert.Equal(t, "Compra a vista", sc.RetrieveDescription())
+				assert.Equal(t, int(1), len(sc.RetrieveEntryByProducer("regular")))
 			},
 		},
 		{
@@ -83,7 +83,7 @@ func TestAccountconfigsApi_FindScriptByLevel(t *testing.T) {
 					programID:       007,
 				}
 			},
-			want: func(t *testing.T, sc configs.Config, e error) {
+			want: func(t *testing.T, sc events.Config, e error) {
 				assert.NotNil(t, e)
 				assert.Equal(t, "ledger config not found", e.Error())
 			},

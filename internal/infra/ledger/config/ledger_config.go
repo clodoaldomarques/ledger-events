@@ -12,7 +12,7 @@ import (
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
 	"github.com/clodoaldomarques/ledger-events/config"
-	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
+	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
 	"github.com/sony/gobreaker"
 )
 
@@ -45,7 +45,7 @@ func New(ctx context.Context) *LedgerConfigApi {
 	}
 }
 
-func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, processing_code string, orgID string, programID int64) (configs.Config, error) {
+func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, processing_code string, orgID string, programID int64) (events.Config, error) {
 	span, ctx := tracer.NewSpanFromContext(ctx, "LedgerConfigApi::FindConfigByLevel", map[string]any{
 		"cid":             cid,
 		"processing_code": processing_code,
@@ -54,12 +54,12 @@ func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, proc
 	})
 	defer span.End()
 
-	response, err := a.circuitBreaker.Execute(func() (interface{}, error) {
+	response, err := a.circuitBreaker.Execute(func() (any, error) {
 		url := fmt.Sprintf("%s/v1/ledger/config/%s/%d", a.baseUrl, processing_code, programID)
 		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 		if err != nil {
 			span.SetError(err)
-			return configs.Config{}, err
+			return nil, err
 		}
 		req.Header.Add("Content-Type", "application/json")
 		req.Header.Add("x-cid", cid)
@@ -68,7 +68,7 @@ func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, proc
 		resp, err := a.httpClient.Do(req)
 		if err != nil {
 			span.SetError(err)
-			return configs.Config{}, err
+			return nil, err
 		}
 		defer resp.Body.Close()
 
@@ -76,45 +76,45 @@ func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, proc
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				span.SetError(err)
-				return configs.Config{}, fmt.Errorf("error on read response: %w", err)
+				return nil, fmt.Errorf("error on read response: %w", err)
 			}
 
 			var errResp ErrResponse
 			if err := json.Unmarshal(body, &errResp); err != nil {
 				span.SetError(err)
-				return configs.Config{}, fmt.Errorf("unmarshal error: %s", err.Error())
+				return nil, fmt.Errorf("unmarshal error: %s", err.Error())
 			}
 			span.SetError(errResp)
-			return configs.Config{}, errResp
+			return nil, errResp
 		}
 
 		if resp.StatusCode != http.StatusOK {
 			span.SetError(fmt.Errorf("api error: status %d", resp.StatusCode))
-			return configs.Config{}, fmt.Errorf("api error: status %d", resp.StatusCode)
+			return nil, fmt.Errorf("api error: status %d", resp.StatusCode)
 		}
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			span.SetError(err)
-			return configs.Config{}, fmt.Errorf("erro on read response: %w", err)
+			return nil, fmt.Errorf("error on read response: %w", err)
 		}
 
-		var scriptResponse ConfigResponse
-		if err := json.Unmarshal(body, &scriptResponse); err != nil {
+		var configResponse ConfigResponse
+		if err := json.Unmarshal(body, &configResponse); err != nil {
 			span.SetError(err)
-			return configs.Config{}, fmt.Errorf("unmarshal erro: %s", err.Error())
+			return nil, fmt.Errorf("unmarshal erro: %s", err.Error())
 		}
 
-		return scriptResponse.ToEntity(), nil
+		return configResponse, nil
 
 	})
 
 	if err != nil {
 		span.SetError(err)
-		return configs.Config{}, err
+		return nil, err
 	}
 
-	return response.(configs.Config), nil
+	return response.(events.Config), nil
 }
 
 func (a LedgerConfigApi) Close() {

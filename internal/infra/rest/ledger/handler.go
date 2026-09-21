@@ -3,7 +3,7 @@ package ledger
 import (
 	"net/http"
 
-	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
+	"github.com/clodoaldomarques/ledger-events/internal/application/events"
 	"github.com/clodoaldomarques/ledger-events/internal/infra/db/mysql"
 	configApi "github.com/clodoaldomarques/ledger-events/internal/infra/ledger/config"
 	"github.com/clodoaldomarques/ledger-events/internal/infra/message"

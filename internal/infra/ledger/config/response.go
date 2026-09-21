@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
+	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
 )
 
 type ConfigResponse struct {
@@ -20,43 +20,26 @@ type ConfigResponse struct {
 	Version     int64            `json:"version"`
 }
 
-func (s ConfigResponse) ToEntity() configs.Config {
-	scr := configs.Config{
-		ConfigID:    s.ConfigID,
-		Level:       configs.Level(s.Level),
-		ProcessCode: s.ProcessCode,
-		OrgID:       s.OrgID,
-		Description: s.Description,
-		Scripts:     make([]configs.Script, 0, len(s.Scripts)),
-		CreatedAt:   s.CreatedAt,
-		UpdatedAt:   s.UpdatedAt,
-		Enable:      s.Enable,
-		Version:     s.Version,
+func (c ConfigResponse) RetrieveDescription() string {
+	return c.Description
+}
+
+func (c ConfigResponse) RetrieveEntryByProducer(producer string) []events.Script {
+	var entries []events.Script
+
+	for _, e := range c.Scripts {
+		if e.Flow == producer {
+			entries = append(entries, e)
+		}
 	}
 
-	if s.ProgramID != nil {
-		scr.ProgramID = *s.ProgramID
-	}
-
-	for _, e := range s.Scripts {
-		scr.Scripts = append(scr.Scripts, e.ToEntity())
-	}
-
-	return scr
+	return entries
 }
 
 type AccountResponse struct {
 	Number      string `json:"number"`
 	Description string `json:"description"`
 	Cosif       string `json:"cosif,omitempty"`
-}
-
-func (a AccountResponse) ToEntity() *configs.Account {
-	return &configs.Account{
-		Number:      a.Number,
-		Description: a.Description,
-		Cosif:       a.Cosif,
-	}
 }
 
 type ScriptResponse struct {
@@ -68,21 +51,28 @@ type ScriptResponse struct {
 	CreditAccount *AccountResponse `json:"credit_account,omitempty"`
 }
 
-func (e ScriptResponse) ToEntity() configs.Script {
-	ent := configs.Script{
-		ScriptID:    e.ScriptID,
-		Flow:        e.Flow,
-		Description: e.Description,
-		Expression:  e.Expression,
-	}
+func (s ScriptResponse) RetrieveScriptID() int64 {
+	return s.ScriptID
+}
 
-	if e.DebitAccount != nil {
-		ent.DebitAccount = e.DebitAccount.ToEntity()
-	}
+func (s ScriptResponse) RetrieveDescription() string {
+	return s.Description
+}
 
-	if e.CreditAccount != nil {
-		ent.CreditAccount = e.CreditAccount.ToEntity()
-	}
+func (s ScriptResponse) RetrieveExpression() string {
+	return s.Expression
+}
 
-	return ent
+func (s ScriptResponse) RetrieveCreditAccount() string {
+	if s.CreditAccount != nil {
+		return s.CreditAccount.Number
+	}
+	return ""
+}
+
+func (s ScriptResponse) RetrieveDebitAccount() string {
+	if s.DebitAccount != nil {
+		return s.DebitAccount.Number
+	}
+	return ""
 }

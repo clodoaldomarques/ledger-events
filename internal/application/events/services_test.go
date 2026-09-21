@@ -4,11 +4,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/golang/mock/gomock"
+	"github.com/clodoaldomarques/ledger-events/internal/domain/events"
+	"github.com/clodoaldomarques/ledger-events/internal/infra/ledger/config"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"go.uber.org/mock/gomock"
 
-	"github.com/clodoaldomarques/ledger-events/internal/domain/configs"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,13 +17,13 @@ func TestService_CreateEvent(t *testing.T) {
 	tests := []struct {
 		name  string
 		setup func(ctrl *gomock.Controller) *Service
-		args  func() (Event, map[string]decimal.Decimal, map[string]decimal.Decimal)
-		want  func(t *testing.T, evt Event, e error)
+		args  func() (events.Event, map[string]decimal.Decimal, map[string]decimal.Decimal)
+		want  func(t *testing.T, evt events.Event, e error)
 	}{
 		{
 			name: "when calculate various values and save event with success",
 			setup: func(ctrl *gomock.Controller) *Service {
-				a := NewMockApi(ctrl)
+				a := NewMockConfigProvider(ctrl)
 				scr := fakeScript("(Amounts.amount + Fees.iof) * (Fees.tax / Fees.iof) - Fees.tax")
 				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(scr, nil).Times(1)
 
@@ -34,10 +35,10 @@ func TestService_CreateEvent(t *testing.T) {
 
 				return New(a, r, t)
 			},
-			args: func() (Event, map[string]decimal.Decimal, map[string]decimal.Decimal) {
+			args: func() (events.Event, map[string]decimal.Decimal, map[string]decimal.Decimal) {
 				return FakeEvent(), FakeAmount(), FakeFee()
 			},
-			want: func(t *testing.T, evt Event, e error) {
+			want: func(t *testing.T, evt events.Event, e error) {
 				assert.Nil(t, e)
 				got := decimal.NewFromFloat(150.00)
 				assert.Equal(t, got.String(), evt.Entries[0].Amount.String())
@@ -46,7 +47,7 @@ func TestService_CreateEvent(t *testing.T) {
 		{
 			name: "when pass single value and save event with success",
 			setup: func(ctrl *gomock.Controller) *Service {
-				a := NewMockApi(ctrl)
+				a := NewMockConfigProvider(ctrl)
 				scr := fakeScript("Amounts.amount")
 				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(scr, nil).Times(1)
 
@@ -58,10 +59,10 @@ func TestService_CreateEvent(t *testing.T) {
 
 				return New(a, r, t)
 			},
-			args: func() (Event, map[string]decimal.Decimal, map[string]decimal.Decimal) {
+			args: func() (events.Event, map[string]decimal.Decimal, map[string]decimal.Decimal) {
 				return FakeEvent(), FakeAmount(), FakeFee()
 			},
-			want: func(t *testing.T, evt Event, e error) {
+			want: func(t *testing.T, evt events.Event, e error) {
 				assert.Nil(t, e)
 				got := decimal.NewFromFloat(150.00)
 				assert.Equal(t, got.String(), evt.Entries[0].Amount.String())
@@ -70,17 +71,17 @@ func TestService_CreateEvent(t *testing.T) {
 		{
 			name: "when receive error on validate expression",
 			setup: func(ctrl *gomock.Controller) *Service {
-				a := NewMockApi(ctrl)
+				a := NewMockConfigProvider(ctrl)
 				scr := fakeScript("jack sparrow is here")
 				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(scr, nil).Times(1)
 				r := NewMockRepository(ctrl)
 				t := NewMockTopic(ctrl)
 				return New(a, r, t)
 			},
-			args: func() (Event, map[string]decimal.Decimal, map[string]decimal.Decimal) {
+			args: func() (events.Event, map[string]decimal.Decimal, map[string]decimal.Decimal) {
 				return FakeEvent(), FakeAmount(), FakeFee()
 			},
-			want: func(t *testing.T, evt Event, e error) {
+			want: func(t *testing.T, evt events.Event, e error) {
 				assert.NotNil(t, e)
 				assert.Equal(t, e.Error(), "invalid expression: jack sparrow is here")
 			},
@@ -88,17 +89,17 @@ func TestService_CreateEvent(t *testing.T) {
 		{
 			name: "when script not found",
 			setup: func(ctrl *gomock.Controller) *Service {
-				a := NewMockApi(ctrl)
-				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(configs.Config{}, configs.ErrScriptNotFound{}).Times(1)
+				a := NewMockConfigProvider(ctrl)
+				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, events.ErrScriptNotFound{}).Times(1)
 				r := NewMockRepository(ctrl)
 				t := NewMockTopic(ctrl)
 
 				return New(a, r, t)
 			},
-			args: func() (Event, map[string]decimal.Decimal, map[string]decimal.Decimal) {
+			args: func() (events.Event, map[string]decimal.Decimal, map[string]decimal.Decimal) {
 				return FakeEvent(), FakeAmount(), FakeFee()
 			},
-			want: func(t *testing.T, evt Event, e error) {
+			want: func(t *testing.T, evt events.Event, e error) {
 				assert.NotNil(t, e)
 				assert.Equal(t, e.Error(), "ledger config not found")
 			},
@@ -116,32 +117,34 @@ func TestService_CreateEvent(t *testing.T) {
 	}
 }
 
-func fakeScript(expr string) configs.Config {
-	return configs.Config{
+func fakeScript(expr string) events.Config {
+	var c any = config.ConfigResponse{
 		ConfigID:    "LEDGER-B612",
-		Level:       configs.PlatformLevel,
+		Level:       "tenant",
 		ProcessCode: "b-612",
 		OrgID:       "TN-123-456",
 		Description: "programa de teste",
-		Scripts: []configs.Script{
+		Scripts: []config.ScriptResponse{
 			{
 				ScriptID:    100,
-				Flow:        configs.Regular,
+				Flow:        "regular",
 				Description: "entrada de teste",
 				Expression:  expr,
 			},
 			{
 				ScriptID:    101,
-				Flow:        configs.Migration,
+				Flow:        "migration",
 				Description: "entrada de teste",
 				Expression:  expr,
 			},
 		},
 	}
+
+	return c.(events.Config)
 }
 
-func FakeEvent() Event {
-	return Event{
+func FakeEvent() events.Event {
+	return events.Event{
 		EventID:        uuid.NewString(),
 		OrgID:          "TN-123-456",
 		ProcessingCode: "b-612",
