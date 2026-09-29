@@ -114,6 +114,24 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "200m"
+              
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: ledger-events
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: ledger-events
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
       volumes:
         - name: schema-volume
           configMap:

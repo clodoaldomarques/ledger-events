@@ -21,7 +21,8 @@ var (
 )
 
 type Repository struct {
-	db *sql.DB
+	ctx context.Context
+	db  *sql.DB
 }
 
 func NewRepository(ctx context.Context) *Repository {
@@ -31,7 +32,10 @@ func NewRepository(ctx context.Context) *Repository {
 		return &Repository{}
 	}
 
-	return &Repository{db: db}
+	return &Repository{
+		ctx: ctx,
+		db:  db,
+	}
 }
 
 func (r Repository) Close() {
@@ -100,5 +104,12 @@ func (r Repository) SaveEvent(ctx context.Context, cid string, e events.Event) e
 	}
 
 	tx.Commit()
+	return nil
+}
+
+func (r Repository) Health() error {
+	if err := r.db.PingContext(r.ctx); err != nil {
+		return err
+	}
 	return nil
 }
