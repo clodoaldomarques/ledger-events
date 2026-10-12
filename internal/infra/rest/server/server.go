@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	otelecho "github.com/clodoaldomarques/core-sdk/pkg/otel/echo"
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
 	"github.com/clodoaldomarques/ledger-events/internal/infra/db/mysql"
@@ -40,7 +41,13 @@ func (s Server) routes() {
 		LogRequestBody:  true,
 		LogResponseBody: false, // ligue só para debug
 		RedactFields:    []string{"password", "token", "credit_card"},
+		SkipPaths: []string{
+			"/health/live",
+			"/health/ready",
+		},
 	}))
+
+	s.http.Use(otelecho.Interceptor())
 
 	// Health
 	s.http.GET("/health/live", s.Liveness)
@@ -69,13 +76,13 @@ func (s *Server) Readiness(c echo.Context) error {
 	)
 	defer cancel()
 
-	err := mysql.NewRepository(ctx).Health()
-	if err != nil {
+	db := mysql.NewRepository(ctx)
+	defer db.Close()
+	if err := db.Health(); err != nil {
 		return c.NoContent(http.StatusServiceUnavailable)
 	}
 
-	err = message.New(ctx).Health()
-	if err != nil {
+	if err := message.New(ctx).Health(); err != nil {
 		return c.NoContent(http.StatusServiceUnavailable)
 	}
 
