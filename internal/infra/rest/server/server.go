@@ -36,16 +36,7 @@ func (s Server) routes() {
 	s.http.Use(tracer.Interceptor())
 
 	// logger interceptor
-	s.http.Use(logger.InterceptorWithConfig(logger.InterceptorConfig{
-		MaxBodySize:     5 * 1024,
-		LogRequestBody:  true,
-		LogResponseBody: false, // ligue só para debug
-		RedactFields:    []string{"password", "token", "credit_card"},
-		SkipPaths: []string{
-			"/health/live",
-			"/health/ready",
-		},
-	}))
+	s.http.Use(logger.Interceptor())
 
 	s.http.Use(otelecho.Interceptor())
 
