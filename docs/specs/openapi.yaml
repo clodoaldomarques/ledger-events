@@ -1,0 +1,227 @@
+openapi: 3.1.0
+info:
+  title: Ledger Events API
+  version: 1.0.0-as-is
+  description: >-
+    Contrato HTTP reverse-engineered do commit 396db3e. Descreve o comportamento
+    implementado, incluindo o mapeamento de falhas de integração para 400.
+    A versão narrativa está em docs/specs/03-api.md.
+  contact:
+    name: Clodoaldo Marques
+    url: https://github.com/clodoaldomarques/ledger-events
+servers:
+  - url: http://localhost:5001
+    description: Servidor local (make run)
+tags:
+  - name: health
+    description: Verificações de disponibilidade
+  - name: events
+    description: Criação de eventos contábeis
+paths:
+  /health/live:
+    get:
+      tags:
+        - health
+      operationId: liveness
+      summary: Verifica se o processo está ativo
+      description: Não consulta dependências externas.
+      responses:
+        '200':
+          description: Processo ativo
+  /health/ready:
+    get:
+      tags:
+        - health
+      operationId: readiness
+      summary: Verifica MySQL e SNS
+      description: >-
+        Executa PingContext no MySQL e GetTopicAttributes no SNS. Não retorna corpo.
+      responses:
+        '200':
+          description: Dependências disponíveis
+        '503':
+          description: Pelo menos uma dependência indisponível
+  /v1/ledger/events:
+    post:
+      tags:
+        - events
+      operationId: createEvent
+      summary: Cria e publica um evento contábil
+      description: >-
+        Busca a configuração no Ledger Config, calcula as entradas, persiste o evento
+        no MySQL e publica no tópico SNS configurado. O correlation id é propagado em
+        spans, logs e na coluna correlation_id.
+      parameters:
+        - name: x-tenant
+          in: header
+          required: false
+          description: >-
+            Identificador da organização. Propagado como org_id e como header ao
+            Ledger Config. Esperado pelo contrato, mas não validado pela implementação.
+          schema:
+            type: string
+          example: TN-77add76c-e395-446b-b306-1a0f9cb99a31
+        - name: x-cid
+          in: header
+          required: false
+          description: >-
+            Correlation id. Quando ausente, o servidor gera um UUID.
+          schema:
+            type: string
+          example: 5b8b1a2e-4f2c-4d1e-9f5a-1c2d3e4f5a6b
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventRequest'
+            example:
+              processing_code: '101'
+              program_id: 401
+              account_id: 123
+              producer: regular
+              amounts:
+                amount: 150.00
+              fees:
+                iof: 15.99
+      responses:
+        '201':
+          description: Evento calculado, persistido e publicado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+              example:
+                event_id: 9f1d3c5a-7b2e-4c8a-9d10-123456789abc
+                org_id: TN-77add76c-e395-446b-b306-1a0f9cb99a31
+                processing_code: '101'
+                program_id: 401
+                account_id: 123
+                description: Compra a vista
+                producer: regular
+                created_at: '2026-11-21T20:00:00Z'
+                entries:
+                  - entry_type_id: 101
+                    amount: '165.99'
+                    debit_account: ''
+                    credit_account: ''
+                    description: Compra a vista - Cartão
+        '400':
+          description: >-
+            Falha de bind, de configuração, de expressão, de validação ou de
+            dependência externa. Todas compartilham o mesmo formato.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                configNotFound:
+                  value:
+                    message: ledger config not found
+                invalidExpression:
+                  value:
+                    message: 'invalid expression: jack sparrow is here'
+                noEntries:
+                  value:
+                    message: entry not found to producer regular
+components:
+  schemas:
+    Decimal:
+      description: >-
+        Valor decimal. Aceito como número ou string na requisição; serializado
+        como string na resposta.
+      oneOf:
+        - type: string
+          pattern: '^-?\d+(\.\d+)?$'
+          examples:
+            - '165.99'
+        - type: number
+    DecimalMap:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Decimal'
+    EventRequest:
+      type: object
+      required:
+        - processing_code
+        - program_id
+        - account_id
+        - producer
+        - amounts
+        - fees
+      properties:
+        processing_code:
+          type: string
+          description: Código usado na URL do Ledger Config.
+          example: '101'
+        program_id:
+          type: integer
+          format: int64
+          example: 401
+        account_id:
+          type: integer
+          format: int64
+          example: 123
+        producer:
+          type: string
+          enum:
+            - regular
+            - migration
+          description: >-
+            Seleciona o processador e o filtro de scripts. Valores fora do enum
+            não são rejeitados pela implementação atual.
+        amounts:
+          $ref: '#/components/schemas/DecimalMap'
+          description: Valores acessíveis nas expressões como Amounts.
+        fees:
+          $ref: '#/components/schemas/DecimalMap'
+          description: Valores acessíveis nas expressões como Fees.
+    EventResponse:
+      type: object
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        org_id:
+          type: string
+        processing_code:
+          type: string
+        program_id:
+          type: integer
+          format: int64
+        account_id:
+          type: integer
+          format: int64
+        description:
+          type: string
+        producer:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntryResponse'
+    EntryResponse:
+      type: object
+      properties:
+        entry_type_id:
+          type: integer
+          format: int64
+          description: script_id da configuração que gerou a entrada.
+        amount:
+          $ref: '#/components/schemas/Decimal'
+        debit_account:
+          type: string
+        credit_account:
+          type: string
+        description:
+          type: string
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
