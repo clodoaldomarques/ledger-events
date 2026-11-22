@@ -4,216 +4,181 @@
 
 ## Overview
 
-Ledger Events is a backend service responsible for processing and exposing accounting events for the Ledger ecosystem.
+Ledger Events receives accounting-event requests, resolves the processing configuration from Ledger Config, calculates entries from amounts and fees, persists the event in MySQL, and publishes it to SNS for asynchronous processing by Ledger Worker.
 
-The service is designed as an independent backend component, isolating accounting event processing from other services in the platform.
+It is part of a broader set of Go backend services:
 
-The project was developed in Go and follows a modular structure that separates the application entry point, configuration, internal implementation and supporting infrastructure.
+```text
+                          ┌───────────────────┐
+                          │   Ledger Config   │
+                          │   Configuration   │
+                          └─────────┬─────────┘
+                                    │
+                          ┌─────────▼─────────┐
+                          │   Ledger Events   │
+                          │       Go API      │
+                          └─────────┬─────────┘
+                                    │ Events
+                          ┌─────────▼─────────┐
+                          │   Ledger Worker   │
+                          │ Async Processing  │
+                          └───────────────────┘
+```
+
+Shared infrastructure (AWS clients, OTel, logging, expression evaluation) comes from [`core-sdk`](https://github.com/clodoaldomarques/core-sdk).
 
 ## Architecture
 
-The project is organized around a modular backend structure:
+Request flow:
+
+1. `cmd/main.go` starts OpenTelemetry and the Echo HTTP server, then handles graceful shutdown.
+2. `internal/infra/rest/server` wires middlewares (tracing, logging, OTel), health routes, and the events route.
+3. `internal/infra/rest/ledger` binds the request and builds the MySQL, SNS, and Ledger Config clients for that request.
+4. `internal/application/events.Service.CreateEvent` looks up the config, chooses a processor by `producer`, validates, saves, and emits the event.
+5. `internal/domain/events` holds the pure rules; expressions are evaluated with `core-sdk/pkg/expression` against the variables `Amounts` and `Fees` (plus `Sum`, `Add`, `Sub`, `Mul`, `Div`).
+6. `internal/infra` contains the adapters: MySQL repository, SNS publisher, Ledger Config HTTP client with circuit breaker, and REST handlers.
+7. `config` exposes an environment-backed `Config` singleton used by all adapters.
+
+## Project layout
 
 ```text
-ledger-events/
-├── cmd/
-├── config/
-├── docs/
-├── internal/
-├── scripts/
-├── .env
-├── Makefile
-├── docker-compose.yaml
-├── go.mod
-└── go.sum
-```
-
-### `cmd/`
-
-Contains the application entry point and service initialization.
-
-### `config/`
-
-Contains application configuration and configuration-related components.
-
-### `internal/`
-
-Contains the application's internal implementation and keeps implementation details encapsulated within the service.
-
-### `docs/`
-
-Contains project documentation and architectural resources.
-
-### `scripts/`
-
-Contains supporting scripts and infrastructure resources used during development and deployment.
-
-## Responsibilities
-
-Ledger Events is responsible for the accounting-event layer of the Ledger ecosystem.
-
-Its main responsibility is to provide a dedicated backend component for accounting events and their processing.
-
-The service helps isolate accounting concerns from other components of the platform, allowing them to evolve independently.
-
-## Role in the Ledger Ecosystem
-
-Ledger Events is part of a broader set of backend services designed around accounting and ledger processing.
-
-```text
-                         ┌───────────────────┐
-                         │   Ledger Config   │
-                         │   Configuration   │
-                         └─────────┬─────────┘
-                                   │
-                                   │
-                         ┌─────────▼─────────┐
-                         │   Ledger Events   │
-                         │                   │
-                         │     Go API        │
-                         └─────────┬─────────┘
-                                   │
-                                   │ Events
-                                   ▼
-                         ┌───────────────────┐
-                         │   Ledger Worker   │
-                         │                   │
-                         │ Async Processing  │
-                         └───────────────────┘
-```
-
-The separation of responsibilities allows the different components of the Ledger platform to evolve independently.
-
-## Project Structure
-
-```text
-cmd/
-    Application entry point
-
-config/
-    Application configuration
-
-docs/
-    Documentation and architectural resources
-
+cmd/                  application entry point
+config/               environment-backed configuration
+docs/                 C4 diagrams and Postman collection
 internal/
-    Application implementation
-
+  application/events  orchestration service, interfaces, generated mocks
+  domain/events       event model and processing rules
+  infra/db/mysql      persistence
+  infra/ledger/config Ledger Config HTTP client
+  infra/message       SNS publisher
+  infra/rest          Echo server, handlers, request/response types
 scripts/
-    Development and infrastructure resources
+  docker/             Dockerfile, MockServer expectations, OTel/Prometheus config
+  k8s/                deployment, service, schema ConfigMap
+  sql/                MySQL schema used by docker compose
+  terraform/          SNS topic provisioned on LocalStack
 ```
 
-## Design Principles
+## API
 
-The project follows principles commonly used in modern backend systems:
+### `POST /v1/ledger/events`
 
-- **Separation of concerns** — different application responsibilities are isolated.
-- **Encapsulation** — internal implementation details remain within the service.
-- **Service isolation** — accounting event processing is implemented as an independent backend component.
-- **Modularity** — application components are organized into dedicated packages.
-- **Cloud-native development** — the repository includes container and infrastructure resources for local development and deployment.
+Headers:
 
-## Local Development
+- `x-tenant`: tenant identifier, forwarded to Ledger Config and stored on the event.
+- `x-cid`: correlation id; generated automatically when absent.
 
-### Requirements
+Request body:
 
-- Go
-- Docker
-- Docker Compose
-
-### Clone
-
-```bash
-git clone https://github.com/clodoaldomarques/ledger-events.git
-cd ledger-events
+```json
+{
+  "processing_code": "101",
+  "program_id": 401,
+  "account_id": 123,
+  "producer": "migration",
+  "amounts": { "amount": 150.00 },
+  "fees": { "iof": 15.99 }
+}
 ```
 
-### Install dependencies
+`producer` must be `regular` or `migration`. Ledger Config is queried at `GET {LEDGER_CONFIG_API_URL}/v1/ledger/config/{processing_code}/{program_id}`; its scripts express calculations such as `Amounts.amount + Fees.iof`. A successful call returns `201` with the saved event and calculated entries.
+
+### Health
+
+- `GET /health/live` — process is up, no dependency checks.
+- `GET /health/ready` — checks MySQL and SNS availability.
+
+## Requirements
+
+- Go 1.26.1+ (see `go.mod`)
+- Docker and Docker Compose
+- Make
+- Optional: Terraform and `nc` for `make up`/`make apply`, `kubectl` for deployment, `mockgen` for mock regeneration, `benchstat` for `make bench-compare`
+
+## Configuration
+
+Create a local `.env` file (gitignored). The current development values are:
+
+| Variable | Default / example |
+|---|---|
+| `APP_PORT` | `5001` (default in code) |
+| `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE` | `localhost`, `3306`, `ledger` |
+| `MYSQL_USER`, `MYSQL_PASSWORD` | `admin`, `adminpassword` |
+| `AWS_ADDRESS` | `http://localhost:4566` (LocalStack) |
+| `AWS_REGION` | `us-east-1` |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | `test`, `test` |
+| `EVENTS_SNS_TOPIC` | `arn:aws:sns:us-east-1:000000000000:events-sns-topic` |
+| `LEDGER_CONFIG_API_URL` | `http://localhost:1080` (MockServer) |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `localhost:4317` |
+| `OTEL_SERVICE_NAME` | `ledger-events` |
+
+`make run` exports `.env` before starting the app. Running `go run ./cmd/...` directly does **not** load it; only `APP_PORT` has a code default.
+
+## Running locally
 
 ```bash
 go mod download
+docker compose up -d       # dependencies only: MySQL, LocalStack, MockServer, OTel, etc.
+make run                   # exports .env and starts the API on :5001
 ```
 
-### Run the application
+There is no application container in `docker compose`: it starts only the services the API depends on. Useful local endpoints: MockServer `:1080`, LocalStack `:4566`, Zipkin `:9411`, Prometheus `:9090`, OTLP collector `:4317`/`:4318`.
+
+`make up` also runs Terraform to create the SNS topic, but its provider and readiness check are hardcoded to LocalStack at `192.168.67.2:30002`. If LocalStack is only available on `localhost:4566`, use `docker compose up -d` plus `make run` instead.
+
+Quick checks:
 
 ```bash
-go run ./cmd/...
+curl http://localhost:5001/health/live
+curl http://localhost:5001/health/ready
 ```
 
-### Run tests
+Use `make down` to stop the dependencies and remove their volumes.
+
+## Tests and benchmarks
 
 ```bash
-go test ./...
+go test ./...                                   # no external services required
+make test                                       # coverage in cover.out + HTML viewer
+go test -run TestService_CreateEvent ./internal/application/events
+go test -run TestAccountconfigsApi_FindScriptByLevel ./internal/infra/ledger/config
 ```
 
-### Run with Docker Compose
+Benchmarks live in `internal/application/events/bench_test.go`:
 
 ```bash
-docker compose up
+make bench
+make bench-one name=BenchmarkCreateEvent_Success
+make bench-parallel
+make profile-cpu
 ```
 
-## Development Automation
+`make bench-compare` needs `benchstat` installed separately. After changing `internal/application/events/interfaces.go`, regenerate mocks with `go generate ./internal/application/events`.
 
-The repository includes a `Makefile` to simplify common development and operational tasks.
-
-To inspect the available commands:
+## Deployment
 
 ```bash
-make
+make build version=1.0.0                        # builds and tags the container image
+make publish version=1.0.0                      # build + push
+make apply                                      # terraform + kubectl apply -f scripts/k8s/
+make destroy                                    # remove k8s and terraform-managed resources
 ```
 
-## Technology Stack
+Kubernetes deployment expects the `mysql-credentials` and `aws-credentials` secrets, and applies the schema from `scripts/k8s/configmap.yaml` via an init container. The service exposes port `5001` (node port `31001`). Terraform state is local and gitignored.
 
-| Technology | Purpose |
-|---|---|
-| Go | Backend service |
-| Docker | Containerization |
-| Docker Compose | Local development environment |
-| Make | Development automation |
+## Documentation and notes
 
-## Engineering Concepts
+- C4 diagrams: `docs/model/*.puml`.
+- The Postman collection in `docs/collections/` is stale: it targets `/v1/accounting/events` with an older payload. Use `POST /v1/ledger/events` and the request shape above.
+- `AGENTS.md` contains repo-specific guidance for AI coding agents.
 
-This project demonstrates practical backend engineering concepts including:
+## Project status
 
-- Go backend development
-- API development
-- Service-oriented architecture
-- Separation of concerns
-- Modular application structure
-- Configuration management
-- Containerization
-- Local development automation
-- Distributed backend architecture
-
-## Relationship with Other Projects
-
-Ledger Events is part of a broader portfolio of Go backend projects focused on distributed systems and cloud-native architecture.
-
-### Core SDK
-
-Provides reusable infrastructure components such as AWS integrations, messaging and observability.
-
-### Ledger Worker
-
-Provides asynchronous processing of ledger-related events using a worker-based architecture.
-
-### Ledger Config
-
-Provides configuration capabilities for the Ledger ecosystem.
-
-Together, these projects demonstrate different aspects of building distributed backend systems with Go.
-
-## Project Status
-
-This project is part of my Go backend engineering portfolio and serves as a practical exploration of accounting-event processing, service-oriented architecture and distributed backend systems.
-
-The project is intended primarily as an engineering study and portfolio project rather than a production-ready financial platform.
+This is a Go backend engineering study and portfolio project, not a production-ready financial platform.
 
 ## Author
 
-**Clodoaldo Marques**
-
-Backend Software Engineer focused on Go, Microservices, Distributed Systems and Cloud-Native architectures.
+**Clodoaldo Marques** — Backend Software Engineer focused on Go, Microservices, Distributed Systems and Cloud-Native architectures.
 
 - GitHub: https://github.com/clodoaldomarques
 - LinkedIn: https://www.linkedin.com/in/clodoaldomarques/
