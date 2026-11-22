@@ -6,13 +6,13 @@
 
 **Repo**: `github.com/clodoaldomarques/ledger-events` (participante da família ledger/balances)
 
-**Status**: Proposta — especificação **prescritiva** (estado desejado), ainda não implementada
+**Status**: Implementada — especificação **prescritiva** concluída na branch `005-hexagonal-adapters`
 
 **Entrada**: `docs/specs/constitution.md`, `docs/specs/platform.md`, specs `001`-`004`, `AGENTS.md` e engenharia reversa deste repo.
 
 > **Escopo**: esta é a spec 005 aplicada a `ledger-events`. Os IDs `US1`-`US5`, `FR-001`..`FR-014` e `SC-001`..`SC-007` são mantidos idênticos nos repos da família para rastreabilidade; o conteúdo abaixo descreve **somente este repo**. Nenhuma mudança de comportamento externo está autorizada.
 
-> **Diferença em relação às specs 001-004**: aquelas são espelhos descritivos do código em `396db3e`. Esta é uma spec **prescritiva**: descreve o estado alvo e será considerada concluída quando o código e os documentos de apoio forem ajustados aqui.
+> **Diferença em relação às specs 001-004**: aquelas são espelhos descritivos do código em `396db3e`. Esta é uma spec **prescritiva**: descreve o estado alvo, agora implementado aqui, incluindo o código e os documentos de apoio.
 
 ## Contexto e Motivação
 
@@ -156,9 +156,9 @@ Como mantenedor, quero eliminar o que nunca entra no fluxo de request, reduzindo
 - **SC-001**: `go test ./...`, `go build ./...` e `go vet ./...` passam neste repo antes e depois da migração.
 - **SC-002**: Zero imports de `internal/adapters` a partir de `internal/core` neste repo.
 - **SC-003**: Zero chamadas a `configApi.New`, `mysql.NewRepository` ou `message.New` fora de `cmd/**` e dos próprios adapters.
-- **SC-004**: Diff de `internal/core/ledger/domain` restrito a movimento de pacote/imports — nenhuma regra alterada.
+- **SC-004**: Diff de `internal/core/ledger/domain` restrito a movimento de pacote/imports e à remoção dos erros mortos exigida em US5 — nenhuma regra de negócio alterada.
 - **SC-005**: Nenhuma diferença nas respostas de `POST /v1/ledger/events` e `/health/*` comparadas a `../openapi.yaml`.
-- **SC-006**: `go mod tidy` sem `github.com/golang/mock` e sem ocorrências de `ErrDuplicatedEntry`/`ErrDuplicatedAccount` neste repo.
+- **SC-006**: `go mod tidy` sem `github.com/golang/mock` e sem ocorrências de `ErrDuplicatedEntry`/`ErrDuplicatedAccount` em código Go, `go.mod` ou `go.sum` (esta spec cita os nomes apenas como histórico).
 - **SC-007**: `make arch-check` falha quando um import proibido é introduzido artificialmente e passa no estado final.
 
 ## Suposições

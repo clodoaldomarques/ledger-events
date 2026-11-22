@@ -6,7 +6,7 @@
 
 **Status**: Rascunho (derivado do código em `396db3e`)
 
-**Entrada**: engenharia reversa de `config/config.go`, `.env`, `Makefile`, `docker-compose.yaml`, `scripts/docker/`, `scripts/k8s/`, `scripts/terraform/` e `internal/application/events/bench_test.go`
+**Entrada**: engenharia reversa de `config/config.go`, `.env`, `Makefile`, `docker-compose.yaml`, `scripts/docker/`, `scripts/k8s/`, `scripts/terraform/` e `internal/core/ledger/application/bench_test.go`
 
 > **Escopo**: espelho `AS-IS` do suporte de execução do serviço. Detalhes de stack e variáveis estão em [`../platform.md`](../platform.md).
 
@@ -64,12 +64,12 @@ Um mantenedor precisa executar testes, benchmarks e perfis sem depender de servi
 **Cenários de aceitação**:
 
 1. **Dado** o repositório clonado, **Quando** `go test ./...` é executado, **Então** todos os testes passam sem Docker ou serviços externos.
-2. **Dado** o teste focado, **Quando** `go test -run TestService_CreateEvent ./internal/application/events` é executado, **Então** apenas o caso de uso é verificado.
+2. **Dado** o teste focado, **Quando** `go test -run TestService_CreateEvent ./internal/core/ledger/application` é executado, **Então** apenas o caso de uso é verificado.
 3. **Dado** `gofmt -l .` e `go vet ./...`, **Quando** executados, **Então** não apontam problemas — não há linter, CI ou typecheck configurados.
 4. **Dado** `make test`, **Quando** executado, **Então** grava `cover.out` e abre visualizador HTML; não é adequado para checagens não interativas.
 5. **Dado** os alvos `bench-*`/`profile-*`, **Quando** executados, **Então** usam `-run=^$` para excluir testes.
 6. **Dado** `bench-compare`, **Quando** executado sem `benchstat`, **Então** falha: a ferramenta não é dependência do módulo.
-7. **Dado** uma mudança em `interfaces.go`, **Quando** `go generate ./internal/application/events` é executado, **Então** `mock.go` é regenerado.
+7. **Dado** uma mudança em `interfaces.go`, **Quando** `go generate ./internal/core/ledger/ports` é executado, **Então** `mock.go` é regenerado.
 
 ---
 
@@ -111,7 +111,7 @@ Um operador precisa gerar a imagem e aplicar os manifests.
 - **FR-004**: O sistema DEVE declarar em Compose apenas as dependências necessárias ao desenvolvimento local, sem serviço de aplicação.
 - **FR-005**: O sistema DEVE aplicar o schema em `scripts/sql/init.sql` no MySQL local e no init container do Kubernetes. *(OBS-07)*
 - **FR-006**: O sistema DEVE oferecer alvos de teste, benchmark e perfilagem que não dependam de serviços externos. *(NFR-05, NFR-08)*
-- **FR-007**: O sistema DEVE gerar mocks via `go generate ./internal/application/events` a partir de `interfaces.go`. *(NFR-04)*
+- **FR-007**: O sistema DEVE gerar mocks via `go generate ./internal/core/ledger/ports` a partir de `interfaces.go`. *(NFR-04)*
 - **FR-008**: O sistema DEVE construir imagem multi-stage e publicar tags `<version>` e `latest`. *(NFR-07)*
 - **FR-009**: O sistema DEVE aplicar manifests Kubernetes com as secrets `mysql-credentials` e `aws-credentials`.
 - **FR-010**: O sistema DEVE manter a collection Postman alinhada ao contrato vivo `POST /v1/ledger/events`. *(OBS-08)*

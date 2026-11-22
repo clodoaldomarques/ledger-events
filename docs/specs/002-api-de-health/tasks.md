@@ -12,8 +12,8 @@
 
 **Objetivo**: servidor Echo com as rotas de sonda registradas.
 
-- [x] T001 [P] Criar `Server` e `New()` em `internal/infra/rest/server/server.go`
-- [x] T002 [P] Registrar `GET /health/live` e `GET /health/ready` em `internal/infra/rest/server/server.go`
+- [x] T001 [P] Criar `Server` e `New()` em `internal/adapters/inbound/http/server/server.go`
+- [x] T002 [P] Registrar `GET /health/live` e `GET /health/ready` em `internal/adapters/inbound/http/server/server.go`
 - [x] T003 Documentar ambas as rotas em `docs/specs/openapi.yaml`
 
 **Checkpoint**: `curl http://localhost:5001/health/live` retorna `200`.
@@ -26,7 +26,7 @@
 
 **Teste independente**: derrubar MySQL e SNS e chamar `GET /health/live` → `200`.
 
-- [x] T004 [US1] Implementar `Server.Liveness` com `c.NoContent(http.StatusOK)` em `internal/infra/rest/server/server.go`
+- [x] T004 [US1] Implementar `Server.Liveness` com `c.NoContent(http.StatusOK)` em `internal/adapters/inbound/http/server/server.go`
 
 **Checkpoint**: liveness verificada isoladamente.
 
@@ -39,9 +39,9 @@
 **Teste independente**: com dependências no ar, `GET /health/ready` → `200`; sem MySQL, → `503`.
 
 - [x] T005 [US2] Implementar contexto com timeout de `500ms` em `Server.Readiness`
-- [x] T006 [US2] Criar `mysql.NewRepository(ctx)`, chamar `Health()` e fazer `defer Close()` em `internal/infra/rest/server/server.go`
-- [x] T007 [US2] Implementar `Repository.Health()` com `PingContext` em `internal/infra/db/mysql/repository.go`
-- [x] T008 [US2] Criar `message.New(ctx)`, chamar `Health()` e implementar `Topic.Health()` via publisher em `internal/infra/message/service.go`
+- [x] T006 [US2] Criar `mysql.NewRepository(ctx)`, chamar `Health()` e fazer `defer Close()` em `internal/adapters/inbound/http/server/server.go`
+- [x] T007 [US2] Implementar `Repository.Health()` com `PingContext` em `internal/adapters/outbound/mysql/repository.go`
+- [x] T008 [US2] Criar `message.New(ctx)`, chamar `Health()` e implementar `Topic.Health()` via publisher em `internal/adapters/outbound/sns/service.go`
 - [ ] T009 [US2] Adicionar teste com `httptest` e fakes de `Health()` cobrindo `200` e `503`
 
 **Checkpoint**: prontidão validada com as duas dependências.
@@ -54,7 +54,7 @@
 
 **Teste independente**: simular falha de SNS e conferir `503` com corpo vazio.
 
-- [x] T010 [US3] Responder `c.NoContent(http.StatusServiceUnavailable)` em qualquer falha em `internal/infra/rest/server/server.go`
+- [x] T010 [US3] Responder `c.NoContent(http.StatusServiceUnavailable)` em qualquer falha em `internal/adapters/inbound/http/server/server.go`
 - [ ] T011 [US3] Propagar erro de conexão em `mysql.NewRepository` para evitar `db == nil` na prontidão (`OBS-02`)
 
 **Checkpoint**: contrato de sonda congelado.

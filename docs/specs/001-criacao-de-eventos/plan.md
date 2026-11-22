@@ -8,7 +8,7 @@
 
 ## Resumo
 
-Expor uma única rota de mutação que busca a configuração no Ledger Config, calcula entradas com expressões decimais, grava evento e entradas em uma transação MySQL e publica o resultado no SNS. A implementação usa Echo nos handlers, portas em `internal/application/events/interfaces.go`, mocks gerados por `mockgen` e clients de infraestrutura construídos a cada requisição.
+Expor uma única rota de mutação que busca a configuração no Ledger Config, calcula entradas com expressões decimais, grava evento e entradas em uma transação MySQL e publica o resultado no SNS. A implementação usa Echo nos handlers, portas em `internal/core/ledger/ports/outbound.go`, mocks gerados por `mockgen` e clients de infraestrutura construídos a cada requisição.
 
 ## Contexto Técnico
 
@@ -28,7 +28,7 @@ Expor uma única rota de mutação que busca a configuração no Ledger Config, 
 
 **Tipo de projeto**: serviço HTTP
 
-**Metas de desempenho**: não declaradas no repositório; benchmarks `BenchmarkCreateEvent_Success` e `BenchmarkCreateEvent_Parallel` disponíveis em `internal/application/events/bench_test.go`
+**Metas de desempenho**: não declaradas no repositório; benchmarks `BenchmarkCreateEvent_Success` e `BenchmarkCreateEvent_Parallel` disponíveis em `internal/core/ledger/application/bench_test.go`
 
 **Restrições**: sem CI, sem autenticação, sem outbox/retry; `config.New()` captura ambiente apenas uma vez; falhas de dependência são respondidas como `400`
 
@@ -38,13 +38,13 @@ Expor uma única rota de mutação que busca a configuração no Ledger Config, 
 
 | Fonte | Uso |
 |---|---|
-| `cmd/main.go`, `internal/infra/rest/server/server.go` | Entrypoint, rotas, middlewares, shutdown |
-| `internal/infra/rest/ledger/*` | Contrato HTTP, headers, composição de dependências |
-| `internal/application/events/*` | Orquestração, interfaces, mocks gerados |
-| `internal/domain/events/*` | Regras de negócio e erros de domínio |
-| `internal/infra/db/mysql/*`, `scripts/sql/init.sql` | Persistência e esquema |
-| `internal/infra/ledger/config/*` | Cliente HTTP, circuit breaker, contrato de config |
-| `internal/infra/message/*` | Publicação SNS e formato da mensagem |
+| `cmd/main.go`, `internal/adapters/inbound/http/server/server.go` | Entrypoint, rotas, middlewares, shutdown |
+| `internal/adapters/inbound/http/ledger/*` | Contrato HTTP, headers, composição de dependências |
+| `internal/core/ledger/application/*` | Orquestração, interfaces, mocks gerados |
+| `internal/core/ledger/domain/*` | Regras de negócio e erros de domínio |
+| `internal/adapters/outbound/mysql/*`, `scripts/sql/init.sql` | Persistência e esquema |
+| `internal/adapters/outbound/config/*` | Cliente HTTP, circuit breaker, contrato de config |
+| `internal/adapters/outbound/sns/*` | Publicação SNS e formato da mensagem |
 | `config/config.go`, `.env` | Variáveis de ambiente e singleton de configuração |
 | `Makefile`, `docker-compose.yaml`, `scripts/k8s/*`, `scripts/terraform/*` | Execução local, build e deploy |
 | `docs/model/*.mmd` | Diagramas C4 de contexto, container, domínio e componente |
@@ -144,7 +144,7 @@ Exemplos nas expectativas do MockServer (`scripts/docker/mockserver/expectations
 
 ### Mensagem publicada
 
-O envelope do core-sdk SNS é montado em `internal/infra/message/service.go` com `EventID` UUID próprio, `EventType = "ledger"`, `EventData = ToEventMessage(e)` e `EventDate = time.Now()`. Os campos de `event_data` usam as tags de `internal/infra/message/types.go` — diferentes das tags da resposta HTTP:
+O envelope do core-sdk SNS é montado em `internal/adapters/outbound/sns/service.go` com `EventID` UUID próprio, `EventType = "ledger"`, `EventData = ToEventMessage(e)` e `EventDate = time.Now()`. Os campos de `event_data` usam as tags de `internal/adapters/outbound/sns/types.go` — diferentes das tags da resposta HTTP:
 
 ```json
 {
@@ -181,7 +181,7 @@ Na resposta HTTP as tags são `entry_type_id`, `debit_account` e `credit_account
 
 | Princípio | Situação | Evidência |
 |---|---|---|
-| I. Separação em camadas | Passa | Handler → Service → Domain; adapters em `internal/infra` |
+| I. Regra de dependência via portas | Passa (layout da spec 005) | Handler → `EventUseCase` → `Service` → `domain`; adapters em `internal/adapters` |
 | II. O domínio calcula, a interface transporta | Passa parcial | `ProcessRegular`/`ProcessMigration` no domínio; `EventRequest.Validate()` vazio (`OBS-04`) |
 | III. Configuração singleton | Passa | `config/config.go`, com ressalva `OBS-10` |
 | IV. Observabilidade no request | Passa | Interceptadores em `server.routes()` e spans com `cid` |
@@ -220,7 +220,7 @@ scripts/docker/mockserver/expectations.json
 docs/specs/openapi.yaml
 ```
 
-**Decisão de estrutura**: monorepo Go único; caso de uso em `internal/application`, regras em `internal/domain`, transporte e adapters em `internal/infra`. Não há diretório `pkg` em uso.
+**Decisão de estrutura**: módulo Go único; caso de uso em `internal/core/ledger/application`, regras em `internal/core/ledger/domain`, portas em `internal/core/ledger/ports`, transporte e adapters em `internal/adapters`. Não há diretório `pkg` em uso.
 
 ## Fluxos e Decisões
 

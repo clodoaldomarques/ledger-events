@@ -6,7 +6,7 @@
 
 **Status**: Rascunho (derivado do código em `396db3e`)
 
-**Entrada**: engenharia reversa de `internal/infra/rest/server/server.go`, `internal/infra/db/mysql/repository.go`, `internal/infra/message/service.go`, `cmd/main.go` e `docs/specs/openapi.yaml`
+**Entrada**: engenharia reversa de `internal/adapters/inbound/http/server/server.go`, `internal/adapters/outbound/mysql/repository.go`, `internal/adapters/outbound/sns/service.go`, `cmd/main.go` e `docs/specs/openapi.yaml`
 
 > **Escopo**: espelho `AS-IS` das rotas `GET /health/live` e `GET /health/ready`. O contrato legível por máquina está em [`../openapi.yaml`](../openapi.yaml).
 
@@ -88,7 +88,7 @@ Consumidores das sondas dependem de um contrato simples e previsível.
 
 ### Entidades Principais
 
-- **Server**: `internal/infra/rest/server.Server`, com `routes()`, `Liveness` e `Readiness`.
+- **Server**: `internal/adapters/inbound/http/server.Server`, com `routes()`, `Liveness` e `Readiness`.
 - **Repository.Health()**: ping no MySQL obtido de `config.New().GetMySQLConnectionString()`.
 - **Topic.Health()**: delega ao `Health()` do publisher SNS do core-sdk.
 

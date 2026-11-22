@@ -2,7 +2,7 @@
 
 **Branch**: `002-api-de-health` | **Data**: 2026-11-22 | **Spec**: [spec.md](spec.md)
 
-**Entrada**: especificação derivada de `internal/infra/rest/server`, `internal/infra/db/mysql`, `internal/infra/message` e `docs/specs/openapi.yaml`.
+**Entrada**: especificação derivada de `internal/adapters/inbound/http/server`, `internal/adapters/outbound/mysql`, `internal/adapters/outbound/sns` e `docs/specs/openapi.yaml`.
 
 **Nota**: este plano descreve decisões **já presentes** no código; não é um plano a executar do zero.
 
@@ -36,7 +36,7 @@ Registrar duas rotas no Echo e responder com `c.NoContent`. A liveness é indepe
 
 | Princípio | Situação | Evidência |
 |---|---|---|
-| I. Separação em camadas | Passa | Rotas e handlers em `internal/infra/rest/server` |
+| I. Separação em camadas | Passa | Rotas e handlers em `internal/adapters/inbound/http/server` |
 | II. O domínio calcula, a interface transporta | N/A | Sondas não contêm regras de domínio |
 | III. Configuração singleton | Passa | `config.New()` usado pelos construtores dos adapters |
 | IV. Observabilidade no request | Passa | Interceptadores registrados em `server.routes()` |
@@ -58,9 +58,9 @@ docs/specs/002-api-de-health/
 ### Código-fonte (raiz do repositório)
 
 ```text
-internal/infra/rest/server/server.go        # routes(), Liveness, Readiness
-internal/infra/db/mysql/repository.go       # Health(), Close()
-internal/infra/message/service.go           # Health(), Close(ctx)
+internal/adapters/inbound/http/server/server.go        # routes(), Liveness, Readiness
+internal/adapters/outbound/mysql/repository.go       # Health(), Close()
+internal/adapters/outbound/sns/service.go           # Health(), Close(ctx)
 config/config.go                            # GetMySQLConnectionString()
 docs/specs/openapi.yaml                     # /health/live e /health/ready
 ```

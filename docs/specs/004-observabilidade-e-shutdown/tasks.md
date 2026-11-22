@@ -26,10 +26,10 @@
 
 **Teste independente**: enviar `x-cid` conhecido e localizar o valor no span e em `event.correlation_id`.
 
-- [x] T004 [US1] Implementar leitura/geração de `x-cid` em `internal/infra/rest/ledger/handler.go`
-- [x] T005 [US1] Passar `cid` para `Service.CreateEvent` e para o span `Service::CreateEvent` em `internal/application/events/services.go`
-- [x] T006 [US1] Propagar `cid` aos spans de config, repositório e publicador em `internal/infra/{ledger/config,db/mysql,message}`
-- [x] T007 [US1] Gravar `cid` em `event.correlation_id` em `internal/infra/db/mysql/type.go`
+- [x] T004 [US1] Implementar leitura/geração de `x-cid` em `internal/adapters/inbound/http/ledger/handler.go`
+- [x] T005 [US1] Passar `cid` para `Service.CreateEvent` e para o span `Service::CreateEvent` em `internal/core/ledger/application/services.go`
+- [x] T006 [US1] Propagar `cid` aos spans de config, repositório e publicador em `internal/adapters/outbound/{config,mysql,sns}`
+- [x] T007 [US1] Gravar `cid` em `event.correlation_id` em `internal/adapters/outbound/mysql/type.go`
 - [ ] T008 [US1] Adicionar teste automatizado que afirme o atributo `cid` nos spans
 
 **Checkpoint**: correlação verificada ponta a ponta.
@@ -42,11 +42,11 @@
 
 **Teste independente**: requisição bem-sucedida visível no Zipkin com os quatro spans.
 
-- [x] T009 [US2] Registrar `tracer.Interceptor()`, `logger.Interceptor()` e `otelecho.Interceptor()` em `internal/infra/rest/server/server.go`
-- [x] T010 [US2] Criar span `Service::CreateEvent` em `internal/application/events/services.go`
-- [x] T011 [US2] Criar span `LedgerConfigApi::FindConfigByLevel` em `internal/infra/ledger/config/ledger_config.go`
-- [x] T012 [US2] Criar span `Repository::SaveEvent` em `internal/infra/db/mysql/repository.go`
-- [x] T013 [US2] Criar span `Topic::Emit` em `internal/infra/message/service.go`
+- [x] T009 [US2] Registrar `tracer.Interceptor()`, `logger.Interceptor()` e `otelecho.Interceptor()` em `internal/adapters/inbound/http/server/server.go`
+- [x] T010 [US2] Criar span `Service::CreateEvent` em `internal/core/ledger/application/services.go`
+- [x] T011 [US2] Criar span `LedgerConfigApi::FindConfigByLevel` em `internal/adapters/outbound/config/ledger_config.go`
+- [x] T012 [US2] Criar span `Repository::SaveEvent` em `internal/adapters/outbound/mysql/repository.go`
+- [x] T013 [US2] Criar span `Topic::Emit` em `internal/adapters/outbound/sns/service.go`
 - [x] T014 [US2] Configurar exportação de métricas para Prometheus no coletor
 - [ ] T015 [US2] Instalar tracer noop em `TestMain` para eliminar dependência de coletor nos testes
 

@@ -115,7 +115,7 @@ A chave primária composta de `entry` impede dois scripts com o mesmo `script_id
 | `entry.credit_account` | `Entry.CreditAccount` | `number` da conta de crédito, ou vazio |
 | `entry.description` | `Entry.Description` | descrição do script |
 
-O mapeamento está em `internal/infra/db/mysql/type.go` (`buildEventTable`, `buildEntryTable`). `SaveEvent` faz `BeginTx`, um `INSERT` em `event` com 9 colunas (sem `updated_at`), um `INSERT` em `entry` por entrada calculada e `Commit`, com `defer tx.Rollback()`. A conexão vem de `config.New().GetMySQLConnectionString()`, no formato `user:pass@tcp(host:port)/db?charset=utf8&parseTime=True&loc=Local`.
+O mapeamento está em `internal/adapters/outbound/mysql/type.go` (`buildEventTable`, `buildEntryTable`). `SaveEvent` faz `BeginTx`, um `INSERT` em `event` com 9 colunas (sem `updated_at`), um `INSERT` em `entry` por entrada calculada e `Commit`, com `defer tx.Rollback()`. A conexão é aberta uma vez em `cmd/connection.go`, a partir de `config.New().GetMySQLConnectionString()`, no formato `user:pass@tcp(host:port)/db?charset=utf8&parseTime=True&loc=Local`, e injetada no repositório.
 
 ## Ambiente local
 
@@ -143,10 +143,10 @@ O mapeamento está em `internal/infra/db/mysql/type.go` (`buildEventTable`, `bui
 ```bash
 go test ./...                                     # suíte unitária, sem serviços externos
 make arch-check                                   # falha se internal/core importar adapters/infra
-go test -run TestService_CreateEvent ./internal/application/events
-go test -run TestAccountconfigsApi_FindScriptByLevel ./internal/infra/ledger/config
+go test -run TestService_CreateEvent ./internal/core/ledger/application
+go test -run TestAccountconfigsApi_FindScriptByLevel ./internal/adapters/outbound/config
 gofmt -l . && go vet ./... && go build ./...
-go generate ./internal/application/events         # requer mockgen de go.uber.org/mock
+go generate ./internal/core/ledger/ports         # requer mockgen de go.uber.org/mock
 make test                                         # grava cover.out e abre HTML no navegador
 make bench-one name=BenchmarkCreateEvent_Success
 ```

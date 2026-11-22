@@ -6,7 +6,7 @@ Single Go binary (`cmd/main.go`) with Echo routes in `internal/adapters/inbound/
 - `go test ./...` passes with no Docker or external services: tests use gomock, in-memory fakes, and `httptest`; there is no integration suite. Focused runs: `go test -run TestService_CreateEvent ./internal/core/ledger/application`, `go test -run TestAccountconfigsApi_FindScriptByLevel ./internal/adapters/outbound/config`.
 - `make arch-check` fails if `internal/core/**` imports adapters or infrastructure (AWS SDK, Echo, root `config`, MySQL driver, gobreaker).
 - Avoid `make test` for quick checks: it writes `cover.out` and opens an HTML coverage viewer. No linter, CI workflow, or typecheck config is checked in; use `gofmt -l .` and `go vet ./...`.
-- Benchmarks are in `internal/core/ledger/application/bench_test.go`. `make bench`, `make bench-one name=BenchmarkCreateEvent_Success`, `make bench-parallel`, and `make profile-*` already exclude tests with `-run=^$`; `bench-compare` requires `benchstat` installed separately. The `profile-*` targets still use the old path and need updating before use.
+- Benchmarks are in `internal/core/ledger/application/bench_test.go`. `make bench`, `make bench-one name=BenchmarkCreateEvent_Success`, `make bench-parallel`, and `make profile-*` already exclude tests with `-run=^$`; `bench-compare` requires `benchstat` installed separately.
 
 ## Config and local runtime
 - `make run` exports `.env` before `go run cmd/main.go`; plain `go run ./cmd/...` does not load `.env` and leaves DB/AWS/API settings empty (`APP_PORT` alone defaults to 5001).

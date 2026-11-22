@@ -2,7 +2,7 @@
 
 **Branch**: `003-configuracao-e-infraestrutura` | **Data**: 2026-11-22 | **Spec**: [spec.md](spec.md)
 
-**Entrada**: especificação derivada de `config/`, `Makefile`, `docker-compose.yaml`, `scripts/`, `.env` e `internal/application/events/bench_test.go`.
+**Entrada**: especificação derivada de `config/`, `Makefile`, `docker-compose.yaml`, `scripts/`, `.env` e `internal/core/ledger/application/bench_test.go`.
 
 **Nota**: este plano descreve decisões **já presentes** no código; não é um plano a executar do zero. A tabela completa de variáveis e serviços está em [`../platform.md`](../platform.md).
 
@@ -20,7 +20,7 @@ Configuração por ambiente com singleton `sync.Once`, dependências locais via 
 
 **Testes**: `go test ./...` com mocks e `httptest`; `make test` grava `cover.out` e abre HTML
 
-**Benchmarks**: `BenchmarkCreateEvent_Success`, `BenchmarkCreateEvent_Parallel` e perfis em `internal/application/events/bench_test.go`
+**Benchmarks**: `BenchmarkCreateEvent_Success`, `BenchmarkCreateEvent_Parallel` e perfis em `internal/core/ledger/application/bench_test.go`
 
 **Plataforma alvo**: container Linux (Dockerfile em `scripts/docker/api/`), Kubernetes via `scripts/k8s/`
 
@@ -54,7 +54,7 @@ Todos os alvos `bench-*` e `profile-*` usam `-run=^$` para excluir testes.
 
 | Princípio | Situação | Evidência |
 |---|---|---|
-| I. Separação em camadas | Passa | `config` isolado; adapters em `internal/infra` |
+| I. Regra de dependência via portas | Passa | `config` isolado na raiz; adapters em `internal/adapters`, core sem dependência de infra |
 | II. O domínio calcula, a interface transporta | N/A | Configuração e deploy não contêm regras de domínio |
 | III. Configuração singleton | Passa com ressalva | `sync.Once` + options mutáveis (`OBS-10`) |
 | IV. Observabilidade no request | Passa | Variáveis OTLP e interceptadores registrados no servidor |
@@ -86,7 +86,7 @@ scripts/docker/otel-collector.yaml        # configuração OTLP
 scripts/sql/init.sql                      # DDL canônico
 scripts/terraform/{provider,sns}.tf       # tópico SNS no LocalStack
 scripts/k8s/{deployment,service,configmap}.yaml
-internal/application/events/bench_test.go
+internal/core/ledger/application/bench_test.go
 ```
 
 **Decisão de estrutura**: o binário não carrega `.env`; a responsabilidade é do Makefile. O schema tem duas cópias (`OBS-07`) e o endpoint do LocalStack é fixo (`OBS-09`).

@@ -6,7 +6,7 @@
 
 **Status**: Rascunho (derivado do código em `396db3e`)
 
-**Entrada**: engenharia reversa de `internal/infra/rest/ledger`, `internal/application/events`, `internal/domain/events`, `internal/infra/{db/mysql,ledger/config,message}` e `scripts/docker/mockserver/expectations.json`
+**Entrada**: engenharia reversa de `internal/adapters/inbound/http/ledger`, `internal/core/ledger/application`, `internal/core/ledger/domain`, `internal/adapters/outbound/{mysql,config,sns}` e `scripts/docker/mockserver/expectations.json` (caminhos originais do baseline `396db3e` atualizados para o layout da spec 005)
 
 > **Escopo**: espelho `AS-IS` do fluxo `POST /v1/ledger/events`. `INFERIDO` marca intenção deduzida do código. Esta spec não prescreve mudanças; as lacunas aparecem como tarefas `[ ]` e na seção *Complexidade Conhecida* do plano.
 

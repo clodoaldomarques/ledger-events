@@ -26,16 +26,16 @@
 **Objetivo**: camadas compartilhadas por todas as histórias.
 
 - [x] T005 [P] Implementar singleton de ambiente em `config/config.go`
-- [x] T006 [P] Implementar entidades `Event`/`Entry` e `Validate()` em `internal/domain/events/{event,entry}.go`
-- [x] T007 [P] Implementar interfaces `Config`/`Script` e DTOs em `internal/domain/events/configs.go` e `internal/infra/ledger/config/response.go`
-- [x] T008 [P] Implementar `ProcessRegular`/`ProcessMigration` em `internal/domain/events/{processing,regular,migration}.go`
-- [x] T009 [P] Declarar portas `Repository`, `ConfigProvider` e `Topic` em `internal/application/events/interfaces.go`
-- [x] T010 [P] Gerar mocks com `go generate ./internal/application/events` em `internal/application/events/mock.go`
-- [x] T011 [P] Registrar rota e interceptadores em `internal/infra/rest/server/server.go`
-- [x] T012 [P] Implementar DTOs de request/response em `internal/infra/rest/ledger/{request,response}.go`
-- [x] T013 Implementar cliente HTTP com circuit breaker em `internal/infra/ledger/config/ledger_config.go`
-- [x] T014 Implementar repositório MySQL e mapeamento em `internal/infra/db/mysql/{repository,type,connection}.go`
-- [x] T015 Implementar publicador SNS e envelope em `internal/infra/message/{service,types}.go`
+- [x] T006 [P] Implementar entidades `Event`/`Entry` e `Validate()` em `internal/core/ledger/domain/{event,entry}.go`
+- [x] T007 [P] Implementar interfaces `Config`/`Script` e DTOs em `internal/core/ledger/domain/configs.go` e `internal/adapters/outbound/config/response.go`
+- [x] T008 [P] Implementar `ProcessRegular`/`ProcessMigration` em `internal/core/ledger/domain/{processing,regular,migration}.go`
+- [x] T009 [P] Declarar portas `Repository`, `ConfigProvider` e `Topic` em `internal/core/ledger/ports/outbound.go`
+- [x] T010 [P] Gerar mocks com `go generate ./internal/core/ledger/ports` em `internal/core/ledger/ports/mock.go`
+- [x] T011 [P] Registrar rota e interceptadores em `internal/adapters/inbound/http/server/server.go`
+- [x] T012 [P] Implementar DTOs de request/response em `internal/adapters/inbound/http/ledger/{request,response}.go`
+- [x] T013 Implementar cliente HTTP com circuit breaker em `internal/adapters/outbound/config/ledger_config.go`
+- [x] T014 Implementar repositório MySQL e mapeamento em `internal/adapters/outbound/mysql/{repository,type,connection}.go`
+- [x] T015 Implementar publicador SNS e envelope em `internal/adapters/outbound/sns/{service,types}.go`
 
 **Checkpoint**: base pronta; as histórias podem ser verificadas isoladamente.
 
@@ -47,11 +47,11 @@
 
 **Teste independente**: `POST /v1/ledger/events` com `x-tenant` e sem `x-cid` → UUID propagado.
 
-- [x] T016 [US1] Implementar `getHeaders` e a criação dos clients por request em `internal/infra/rest/ledger/handler.go`
-- [x] T017 [US1] Implementar `EventRequest.ToEntity` com `uuid.NewString()` e `time.Now()` em `internal/infra/rest/ledger/request.go`
-- [x] T018 [US1] Implementar bind, `evt.Validate()` e mapeamento de erro para `400` em `internal/infra/rest/ledger/handler.go`
-- [x] T019 [US1] Construir `EventResponse`/`EntryResponse` em `internal/infra/rest/ledger/response.go`
-- [ ] T020 [US1] Aplicar as tags `validate:"required"` chamando `c.Validate(evt)` em `internal/infra/rest/ledger/handler.go` (`OBS-04`)
+- [x] T016 [US1] Implementar `getHeaders` e a criação dos clients por request em `internal/adapters/inbound/http/ledger/handler.go`
+- [x] T017 [US1] Implementar `EventRequest.ToEntity` com `uuid.NewString()` e `time.Now()` em `internal/adapters/inbound/http/ledger/request.go`
+- [x] T018 [US1] Implementar bind, `evt.Validate()` e mapeamento de erro para `400` em `internal/adapters/inbound/http/ledger/handler.go`
+- [x] T019 [US1] Construir `EventResponse`/`EntryResponse` em `internal/adapters/inbound/http/ledger/response.go`
+- [ ] T020 [US1] Aplicar as tags `validate:"required"` chamando `c.Validate(evt)` em `internal/adapters/inbound/http/ledger/handler.go` (`OBS-04`)
 
 **Checkpoint**: recebimento e resposta funcionando de forma independente.
 
@@ -63,10 +63,10 @@
 
 **Teste independente**: cliente apontado para `httptest` com expectativa `/v1/ledger/config/101/401`.
 
-- [x] T021 [US2] Implementar `FindConfigByLevel` em `internal/infra/ledger/config/ledger_config.go`
-- [x] T022 [US2] Implementar circuit breaker `LedgerConfigAPI` com 15s e limite de 5 falhas em `internal/infra/ledger/config/ledger_config.go`
-- [x] T023 [US2] Implementar parse e mensagens de erro (`404`, status inesperado, unmarshal) em `internal/infra/ledger/config/{ledger_config,errors}.go`
-- [x] T024 [US2] Cobrir sucesso, `404` e `unmarshal` em `internal/infra/ledger/config/ledger_config_test.go`
+- [x] T021 [US2] Implementar `FindConfigByLevel` em `internal/adapters/outbound/config/ledger_config.go`
+- [x] T022 [US2] Implementar circuit breaker `LedgerConfigAPI` com 15s e limite de 5 falhas em `internal/adapters/outbound/config/ledger_config.go`
+- [x] T023 [US2] Implementar parse e mensagens de erro (`404`, status inesperado, unmarshal) em `internal/adapters/outbound/config/{ledger_config,errors}.go`
+- [x] T024 [US2] Cobrir sucesso, `404` e `unmarshal` em `internal/adapters/outbound/config/ledger_config_test.go`
 - [ ] T025 [US2] Adicionar teste de integração contra o MockServer local para a expectativa real de config
 
 **Checkpoint**: consulta utilizável isoladamente.
@@ -79,11 +79,11 @@
 
 **Teste independente**: `amounts.amount = 150`, `fees.iof = 15.99`, expressão `Amounts.amount + Fees.iof` → entrada `165.99`.
 
-- [x] T026 [US3] Implementar `Service.CreateEvent` com despacho por `producer` em `internal/application/events/services.go`
-- [x] T027 [US3] Implementar cálculo com `expression` e decimais em `internal/domain/events/{regular,migration,processing}.go`
-- [x] T028 [US3] Implementar `Event.Validate()` e `ErrEntryNotFound` em `internal/domain/events/{event,errors}.go`
-- [x] T029 [US3] Cobrir sucesso, config ausente, expressão inválida e evento sem entradas em `internal/application/events/services_test.go`
-- [ ] T030 [US3] Validar `producer` contra `regular`/`migration` antes do despacho em `internal/application/events/services.go` (`OBS-05`)
+- [x] T026 [US3] Implementar `Service.CreateEvent` com despacho por `producer` em `internal/core/ledger/application/services.go`
+- [x] T027 [US3] Implementar cálculo com `expression` e decimais em `internal/core/ledger/domain/{regular,migration,processing}.go`
+- [x] T028 [US3] Implementar `Event.Validate()` e `ErrEntryNotFound` em `internal/core/ledger/domain/{event,errors}.go`
+- [x] T029 [US3] Cobrir sucesso, config ausente, expressão inválida e evento sem entradas em `internal/core/ledger/application/services_test.go`
+- [ ] T030 [US3] Validar `producer` contra `regular`/`migration` antes do despacho em `internal/core/ledger/application/services.go` (`OBS-05`)
 
 **Checkpoint**: cálculo validado de forma independente.
 
@@ -95,11 +95,11 @@
 
 **Teste independente**: com MySQL local, conferir uma linha em `event` e N em `entry` com o mesmo `event_id`.
 
-- [x] T031 [US4] Implementar `buildEventTable`/`buildEntryTable` em `internal/infra/db/mysql/type.go`
-- [x] T032 [US4] Implementar `SaveEvent` com `BeginTx`, inserts e `defer tx.Rollback()` em `internal/infra/db/mysql/repository.go`
-- [x] T033 [US4] Implementar `Health()` (ping) e `Close()` em `internal/infra/db/mysql/repository.go`
+- [x] T031 [US4] Implementar `buildEventTable`/`buildEntryTable` em `internal/adapters/outbound/mysql/type.go`
+- [x] T032 [US4] Implementar `SaveEvent` com `BeginTx`, inserts e `defer tx.Rollback()` em `internal/adapters/outbound/mysql/repository.go`
+- [x] T033 [US4] Implementar `Health()` (ping) e `Close()` em `internal/adapters/outbound/mysql/repository.go`
 - [ ] T034 [US4] Propagar erro de conexão em `mysql.NewRepository` em vez de devolver `db == nil` (`OBS-02`)
-- [ ] T035 [US4] Verificar erro de `buildEventTable` e retorno de `tx.Commit()` em `internal/infra/db/mysql/repository.go` (`OBS-03`)
+- [ ] T035 [US4] Verificar erro de `buildEventTable` e retorno de `tx.Commit()` em `internal/adapters/outbound/mysql/repository.go` (`OBS-03`)
 
 **Checkpoint**: persistência validada; lacunas marcadas permanecem como exercício.
 
@@ -111,11 +111,11 @@
 
 **Teste independente**: com mocks, verificar ordem `SaveEvent` → `Emit` e envelope com `event_type = "ledger"`.
 
-- [x] T036 [US5] Implementar `Topic.Emit` e `ToEventMessage` em `internal/infra/message/{service,types}.go`
-- [x] T037 [US5] Publicar após a persistência em `internal/application/events/services.go`
-- [x] T038 [US5] Implementar `Health()`/`Close()` do publicador em `internal/infra/message/service.go`
+- [x] T036 [US5] Implementar `Topic.Emit` e `ToEventMessage` em `internal/adapters/outbound/sns/{service,types}.go`
+- [x] T037 [US5] Publicar após a persistência em `internal/core/ledger/application/services.go`
+- [x] T038 [US5] Implementar `Health()`/`Close()` do publicador em `internal/adapters/outbound/sns/service.go`
 - [x] T039 [US5] Documentar o contrato em `docs/specs/openapi.yaml`
-- [ ] T040 [US5] Corrigir `make([]Entry, len(et))` para `make([]Entry, 0, len(et))` e cobrir payload em `internal/infra/message/types.go` (`OBS-01`)
+- [ ] T040 [US5] Corrigir `make([]Entry, len(et))` para `make([]Entry, 0, len(et))` e cobrir payload em `internal/adapters/outbound/sns/types.go` (`OBS-01`)
 - [ ] T041 [US5] Diferenciar erros de validação (`4xx`) de erros de dependência (`5xx`) no handler (`OBS-06`)
 - [ ] T042 [US5] Avaliar outbox transacional ou retry/idempotência para a publicação (`OBS-11`)
 

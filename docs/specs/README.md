@@ -1,6 +1,6 @@
 # Especificações do Ledger Events
 
-Specs geradas por **engenharia reversa** do código em `main` (baseline `396db3e`, 2026-11-21; diagramas em `abb0e85`). Elas descrevem o comportamento **atual**, não um estado desejado — com exceção da spec 005, que é prescritiva.
+Specs geradas por **engenharia reversa** do código em `main` (baseline `396db3e`, 2026-11-21; diagramas em `abb0e85`). Elas descrevem o comportamento observado no baseline; a spec 005 é prescritiva e **já foi implementada**, migrando o código para a topologia hexagonal.
 
 > Commit de referência: `396db3e` (`docs: atualiza README e adiciona AGENTS.md`).
 
@@ -17,7 +17,7 @@ Specs geradas por **engenharia reversa** do código em `main` (baseline `396db3e
 | `005-hexagonal-adapters/` | **Prescritiva**: migração para portas e adapters; IDs canônicos da família ledger/balances |
 | `openapi.yaml` | Contrato HTTP legível por máquina, espelho de `001-criacao-de-eventos` e `002-api-de-health` |
 
-As specs `001`-`004` são espelhos do código atual; a `005` descreve um estado desejado e ainda não implementado. Ela usa os mesmos identificadores `US1`-`US5`, `FR-001`..`FR-014` e `SC-001`..`SC-007` dos demais repos da família para permitir rastreabilidade cruzada.
+As specs `001`-`004` são espelhos do baseline. Seus caminhos de código foram atualizados para o layout da spec 005 (`internal/core/ledger/**` e `internal/adapters/**`), mas os desvios `OBS-01`..`OBS-11` permanecem congelados. A `005` usa os mesmos identificadores `US1`-`US5`, `FR-001`..`FR-014` e `SC-001`..`SC-007` dos demais repos da família para permitir rastreabilidade cruzada.
 
 Cada funcionalidade segue o formato Spec Kit:
 
@@ -43,6 +43,16 @@ Os identificadores `US`, `FR`, `SC` e `T` seguem a nomenclatura do Spec Kit. Os 
 | `04-dominio.md` | `001-criacao-de-eventos/spec.md` e `plan.md` |
 | `05-dados.md` | `platform.md` e `001-criacao-de-eventos/plan.md` |
 | `06-configuracao-e-operacao.md` | `platform.md`, `003`/`004` specs e plans |
+
+## Convenção arquitetural (spec 005)
+
+- `internal/core/ledger/domain`: regras e tipos de domínio; sem dependência de infraestrutura.
+- `internal/core/ledger/application`: caso de uso `Service`, testes e benchmarks.
+- `internal/core/ledger/ports`: `EventUseCase` (entrada) e `EventRepository`, `EventConfigProvider`, `EventPublisher`, `HealthChecker` (saída); `mock.go` é gerado a partir de `outbound.go`.
+- `internal/adapters/inbound/http`: Echo, handlers, DTOs, headers e mapeador de erros.
+- `internal/adapters/outbound`: MySQL, Ledger Config e SNS.
+- `cmd/main.go`: única raiz de composição; adapters são construídos uma vez e fechados no shutdown.
+- `make arch-check` falha se o core importar adapters, AWS SDK, Echo, `config`, MySQL driver ou gobreaker.
 
 ## Uso para estudo
 

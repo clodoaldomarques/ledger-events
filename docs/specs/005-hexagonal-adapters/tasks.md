@@ -54,7 +54,7 @@
 - [x] LE-012 Trocar `mysql.NewRepository(ctx)` por `mysql.New(db)`; mover `connection.go` e a obtenção da string de conexão para a raiz de composição
 - [x] LE-013 Trocar `configApi.New(ctx)` por `config.New(client)`; configurar circuit breaker `LedgerConfigAPI` na raiz
 - [x] LE-014 Trocar `message.New(ctx)` por `sns.New(publisher)`; manter envelope e tags atuais
-- [x] LE-015 Definir `HealthChecker` no core e implementá-lo nos três adapters (ping MySQL, atributos do tópico SNS, GET de config quando aplicável)
+- [x] LE-015 Definir `HealthChecker` no core e implementá-lo no MySQL (ping) e no SNS (atributos do tópico com o `ctx` da requisição); Ledger Config não participa do readiness (decisão registrada no plano)
 - [x] LE-016 Criar teste de contrato das portas com fake in-memory (mesmos casos de `services_test.go`)
 
 **Checkpoint**: US1 e US2 verificáveis; core sem import de adapter.
@@ -105,13 +105,13 @@
 
 ## Fase 6: Documentação e fechamento
 
-- [ ] T027 [P] Reescrever o Princípio I da constituição deste repo ("regra de dependência via portas") e atualizar versão/data
-- [ ] T028 [P] Atualizar `docs/specs/README.md`, `platform.md` e os planos `001`-`004` com os novos caminhos
-- [ ] T029 [P] Registrar a convenção arquitetural neste repo
-- [ ] T030 Rodar `go test ./...`, `go build ./...`, `go vet ./...`, `make arch-check`
-- [ ] T031 Comparar respostas de `POST /v1/ledger/events` e `/health/*` com `docs/specs/openapi.yaml` e conferir SC-001 a SC-007
-- [ ] LE-027 Reescrever Princípio I em `docs/specs/constitution.md`: "regra de dependência via portas"; atualizar versão e data; ajustar índice e planos
-- [ ] LE-028 Rodar verificação final: `go test ./...`, `go build ./...`, `go vet ./...`, `make arch-check`
+- [x] T027 [P] Reescrever o Princípio I da constituição deste repo ("regra de dependência via portas") e atualizar versão/data
+- [x] T028 [P] Atualizar `docs/specs/README.md`, `platform.md` e os planos `001`-`004` com os novos caminhos
+- [x] T029 [P] Registrar a convenção arquitetural neste repo
+- [x] T030 Rodar `go test ./...`, `go build ./...`, `go vet ./...`, `make arch-check`
+- [x] T031 Comparar respostas de `POST /v1/ledger/events` e `/health/*` com `docs/specs/openapi.yaml` e conferir SC-001 a SC-007
+- [x] LE-027 Reescrever Princípio I em `docs/specs/constitution.md`: "regra de dependência via portas"; atualizar versão e data; ajustar índice e planos
+- [x] LE-028 Rodar verificação final: `go test ./...`, `go build ./...`, `go vet ./...`, `make arch-check`
 
 ## Dependências e Ordem de Execução
 

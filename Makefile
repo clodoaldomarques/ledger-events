@@ -97,12 +97,12 @@ bench-parallel:
 
 # CPU profile do caminho feliz
 profile-cpu:
-	go test -bench=BenchmarkCreateEvent_Success$$ -run=^$$ -cpuprofile=cpu.prof -benchtime=5s ./internal/application/events
+	go test -bench=BenchmarkCreateEvent_Success$$ -run=^$$ -cpuprofile=cpu.prof -benchtime=5s ./internal/core/ledger/application
 	go tool pprof -http=:8080 cpu.prof
 
 # memória: total alocado (acha pontos de alocação)
 profile-mem:
-	go test -bench=BenchmarkCreateEvent_Success$$ -run=^$$ -memprofile=mem.prof -benchtime=5s ./internal/application/events
+	go test -bench=BenchmarkCreateEvent_Success$$ -run=^$$ -memprofile=mem.prof -benchtime=5s ./internal/core/ledger/application
 	go tool pprof -http=:8080 mem.prof
 
 # memória em uso (acha vazamento)
@@ -115,7 +115,7 @@ profile-goroutine:
 
 # trace de execução (investiga escalonamento, bloqueios)
 profile-trace:
-	go test -bench=BenchmarkCreateEvent_Parallel$$ -run=^$$ -trace=trace.out -benchtime=5s ./internal/application/events
+	go test -bench=BenchmarkCreateEvent_Parallel$$ -run=^$$ -trace=trace.out -benchtime=5s ./internal/core/ledger/application
 	go tool trace trace.out
 
 # limpa artefatos de profiling

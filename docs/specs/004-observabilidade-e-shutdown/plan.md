@@ -2,7 +2,7 @@
 
 **Branch**: `004-observabilidade-e-shutdown` | **Data**: 2026-11-22 | **Spec**: [spec.md](spec.md)
 
-**Entrada**: especificação derivada de `cmd/main.go`, `internal/infra/rest/server`, `internal/application/events`, `internal/infra/` e `scripts/docker/otel-collector.yaml`.
+**Entrada**: especificação derivada de `cmd/main.go`, `internal/adapters/inbound/http/server`, `internal/core/ledger/application`, `internal/adapters/outbound/` e `scripts/docker/otel-collector.yaml`.
 
 **Nota**: este plano descreve decisões **já presentes** no código; não é um plano a executar do zero.
 
@@ -57,12 +57,12 @@ docs/specs/004-observabilidade-e-shutdown/
 
 ```text
 cmd/main.go                                  # otel.Start, sinais, Shutdown, otel.Shutdown
-internal/infra/rest/server/server.go         # interceptadores e rotas
-internal/infra/rest/ledger/handler.go        # x-cid/x-tenant → cid do serviço
-internal/application/events/services.go      # span Service::CreateEvent
-internal/infra/ledger/config/ledger_config.go# span LedgerConfigApi::FindConfigByLevel
-internal/infra/db/mysql/repository.go        # span Repository::SaveEvent
-internal/infra/message/service.go            # span Topic::Emit + Close(ctx)
+internal/adapters/inbound/http/server/server.go         # interceptadores e rotas
+internal/adapters/inbound/http/ledger/handler.go        # x-cid/x-tenant → cid do serviço
+internal/core/ledger/application/services.go      # span Service::CreateEvent
+internal/adapters/outbound/config/ledger_config.go# span LedgerConfigApi::FindConfigByLevel
+internal/adapters/outbound/mysql/repository.go        # span Repository::SaveEvent
+internal/adapters/outbound/sns/service.go            # span Topic::Emit + Close(ctx)
 scripts/docker/otel-collector.yaml
 ```
 

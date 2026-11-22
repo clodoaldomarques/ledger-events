@@ -6,7 +6,7 @@
 
 **Status**: Rascunho (derivado do código em `396db3e`)
 
-**Entrada**: engenharia reversa de `cmd/main.go`, `internal/infra/rest/server/server.go`, `internal/application/events/services.go`, `internal/infra/{db/mysql,ledger/config,message}` e `scripts/docker/otel-collector.yaml`
+**Entrada**: engenharia reversa de `cmd/main.go`, `internal/adapters/inbound/http/server/server.go`, `internal/core/ledger/application/services.go`, `internal/adapters/outbound/{mysql,config,sns}` e `scripts/docker/otel-collector.yaml` (caminhos originais do baseline `396db3e` atualizados para o layout da spec 005)
 
 > **Escopo**: espelho `AS-IS` de correlação, spans, logs, métricas e ciclo de vida do processo. Variáveis OTEL e ports do coletor estão em [`../platform.md`](../platform.md).
 

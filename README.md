@@ -31,13 +31,13 @@ Shared infrastructure (AWS clients, OTel, logging, expression evaluation) comes 
 
 Request flow:
 
-1. `cmd/main.go` starts OpenTelemetry and the Echo HTTP server, then handles graceful shutdown.
-2. `internal/infra/rest/server` wires middlewares (tracing, logging, OTel), health routes, and the events route.
-3. `internal/infra/rest/ledger` binds the request and builds the MySQL, SNS, and Ledger Config clients for that request.
-4. `internal/application/events.Service.CreateEvent` looks up the config, chooses a processor by `producer`, validates, saves, and emits the event.
-5. `internal/domain/events` holds the pure rules; expressions are evaluated with `core-sdk/pkg/expression` against the variables `Amounts` and `Fees` (plus `Sum`, `Add`, `Sub`, `Mul`, `Div`).
-6. `internal/infra` contains the adapters: MySQL repository, SNS publisher, Ledger Config HTTP client with circuit breaker, and REST handlers.
-7. `config` exposes an environment-backed `Config` singleton used by all adapters.
+1. `cmd/main.go` is the composition root: it starts OpenTelemetry, builds each adapter once (MySQL, Ledger Config, SNS), injects the use case into the handler, starts Echo, and closes the adapters on graceful shutdown.
+2. `internal/adapters/inbound/http/server` wires middlewares (tracing, logging, OTel), health routes, and the events route; `/health/ready` uses an injected `ports.HealthChecker`.
+3. `internal/adapters/inbound/http/ledger` binds the request to a DTO and delegates to `ports.EventUseCase`.
+4. `internal/core/ledger/application.Service.CreateEvent` looks up the config, chooses a processor by `producer`, validates, saves, and emits the event.
+5. `internal/core/ledger/domain` holds the pure rules; expressions are evaluated with `core-sdk/pkg/expression` against the variables `Amounts` and `Fees` (plus `Sum`, `Add`, `Sub`, `Mul`, `Div`).
+6. `internal/adapters/outbound` contains the MySQL repository, SNS publisher, and Ledger Config HTTP client with circuit breaker. Portas ficam em `internal/core/ledger/ports`; `make arch-check` impede imports de infra no core.
+7. `config` exposes an environment-backed `Config` singleton consumed by the composition root.
 
 ## Project layout
 
@@ -46,12 +46,13 @@ cmd/                  application entry point
 config/               environment-backed configuration
 docs/                 C4 diagrams and Postman collection
 internal/
-  application/events  orchestration service, interfaces, generated mocks
-  domain/events       event model and processing rules
-  infra/db/mysql      persistence
-  infra/ledger/config Ledger Config HTTP client
-  infra/message       SNS publisher
-  infra/rest          Echo server, handlers, request/response types
+  core/ledger/domain       event model and processing rules
+  core/ledger/application  orchestration service, tests, benchmarks
+  core/ledger/ports        inbound/outbound interfaces and generated mocks
+  adapters/inbound/http    Echo server, handlers, shared DTO helpers
+  adapters/outbound/mysql  persistence
+  adapters/outbound/config Ledger Config HTTP client
+  adapters/outbound/sns    SNS publisher and envelope
 scripts/
   docker/             Dockerfile, MockServer expectations, OTel/Prometheus config
   k8s/                deployment, service, schema ConfigMap
@@ -141,11 +142,11 @@ Use `make down` to stop the dependencies and remove their volumes.
 go test ./...                                   # no external services required
 make arch-check                                 # fails if internal/core imports adapters or infra
 make test                                       # coverage in cover.out + HTML viewer
-go test -run TestService_CreateEvent ./internal/application/events
-go test -run TestAccountconfigsApi_FindScriptByLevel ./internal/infra/ledger/config
+go test -run TestService_CreateEvent ./internal/core/ledger/application
+go test -run TestAccountconfigsApi_FindScriptByLevel ./internal/adapters/outbound/config
 ```
 
-Benchmarks live in `internal/application/events/bench_test.go`:
+Benchmarks live in `internal/core/ledger/application/bench_test.go`:
 
 ```bash
 make bench
@@ -154,7 +155,7 @@ make bench-parallel
 make profile-cpu
 ```
 
-`make bench-compare` needs `benchstat` installed separately. After changing `internal/application/events/interfaces.go`, regenerate mocks with `go generate ./internal/application/events`.
+`make bench-compare` needs `benchstat` installed separately. After changing `internal/core/ledger/ports/outbound.go`, regenerate mocks with `go generate ./internal/core/ledger/ports`.
 
 ## Deployment
 
