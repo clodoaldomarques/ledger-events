@@ -142,6 +142,7 @@ O mapeamento está em `internal/infra/db/mysql/type.go` (`buildEventTable`, `bui
 
 ```bash
 go test ./...                                     # suíte unitária, sem serviços externos
+make arch-check                                   # falha se internal/core importar adapters/infra
 go test -run TestService_CreateEvent ./internal/application/events
 go test -run TestAccountconfigsApi_FindScriptByLevel ./internal/infra/ledger/config
 gofmt -l . && go vet ./... && go build ./...

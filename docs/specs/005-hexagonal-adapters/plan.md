@@ -107,7 +107,8 @@ scripts/check-architecture.sh            # guarda de imports
 |---|---|---|
 | `tracer`/`logger` dentro do core | Já presentes; mover para decorators exigiria reescrever spans e testes | Manter e registrar como desvio; decorators em spec separada |
 | `config.New()` singleton | Comportamento atual documentado | Manter; apenas parar de chamá-lo dentro dos adapters |
-| De "por request" para "por processo" | Exige composição única na raiz | Confirmar thread safety de `sns.Publisher`, `sql.DB` e `httpclient` na Fase 0; se algum não for seguro, expor factory como porta |
+| `sns.Publisher.Health()` usa o `ctx` recebido no construtor | Compartilhar o publisher criaria health check sem o prazo de 500ms do `/health/ready` | O adapter SNS guarda a config e cria um publisher somente para `Health(ctx)`, preservando o prazo; o publisher de `Emit` continua único |
+| De "por request" para "por processo" | Exige composição única na raiz | Confirmado na Fase 0: `sql.DB` e `aws-sdk-go-v2` são seguros para uso concorrente; `httpclient.Client()` do core-sdk usa `http.DefaultTransport` como base. Instâncias compartilhadas na raiz, sem factory |
 | Mover diretórios quebra todos os imports de uma vez | Mudança física | Fase 1 exclusivamente `git mv` + imports, com build verde antes de seguir |
 | Portas genéricas (`Repository`, `ConfigProvider`, `Topic`) | Nomes históricos | Renomear na Fase 2; aceitar quebra de imports internos |
 | Interfaces `Config`/`Script` implementadas por DTOs de infra | DIP atual, mas DTOs vivem em `infra/ledger/config` | Mover os DTOs com o adapter; manter as interfaces no domínio |

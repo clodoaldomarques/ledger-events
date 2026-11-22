@@ -12,10 +12,10 @@
 
 ## Fase 0: Baseline e guarda
 
-- [ ] T001 Rodar `go test ./...`, `go build ./...` e `go vet ./...` neste repo e registrar o resultado antes de qualquer mudança
-- [ ] T002 [P] Criar `scripts/check-architecture.sh`: falha se `internal/core/**` importar `internal/adapters`, AWS SDK, Echo, `config`, MySQL driver ou gobreaker
-- [ ] T003 [P] Adicionar alvo `arch-check` ao `Makefile` e documentá-lo em `docs/specs/platform.md` e no README
-- [ ] T004 Confirmar thread safety de `sns.Publisher`, `sql.DB` e do `httpclient` do core-sdk para uso compartilhado entre requests
+- [x] T001 Rodar `go test ./...`, `go build ./...` e `go vet ./...` neste repo e registrar o resultado antes de qualquer mudança
+- [x] T002 [P] Criar `scripts/check-architecture.sh`: falha se `internal/core/**` importar `internal/adapters`, AWS SDK, Echo, `config`, MySQL driver ou gobreaker
+- [x] T003 [P] Adicionar alvo `arch-check` ao `Makefile` e documentá-lo em `docs/specs/platform.md` e no README
+- [x] T004 Confirmar thread safety de `sns.Publisher`, `sql.DB` e do `httpclient` do core-sdk para uso compartilhado entre requests
 
 **Checkpoint**: suíte verde e guarda arquitetural passando no estado atual.
 

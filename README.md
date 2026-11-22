@@ -139,6 +139,7 @@ Use `make down` to stop the dependencies and remove their volumes.
 
 ```bash
 go test ./...                                   # no external services required
+make arch-check                                 # fails if internal/core imports adapters or infra
 make test                                       # coverage in cover.out + HTML viewer
 go test -run TestService_CreateEvent ./internal/application/events
 go test -run TestAccountconfigsApi_FindScriptByLevel ./internal/infra/ledger/config
