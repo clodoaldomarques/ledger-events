@@ -83,13 +83,13 @@
 
 ## Fase 4: Remoção de código morto
 
-- [ ] T020 [US5] Migrar o teste do cliente de config de `github.com/golang/mock` para `go.uber.org/mock/gomock` neste repo
-- [ ] T021 [US5] Remover `ErrDuplicatedEntry` e `ErrDuplicatedAccount` por nunca serem usados no fluxo
-- [ ] T022 [US5] Rodar `go mod tidy` neste repo
-- [ ] T023 [US5] Buscar `golang/mock`, `ErrDuplicatedEntry` e `ErrDuplicatedAccount` neste repo e atualizar `AGENTS.md`, `docs/specs/platform.md` e documentação
-- [ ] LE-024 Migrar `adapters/outbound/config/*_test.go` para `go.uber.org/mock/gomock` mantendo os mesmos casos de teste
-- [ ] LE-025 Excluir `ErrDuplicatedEntry` e `ErrDuplicatedAccount` de `internal/core/ledger/domain/errors.go`; manter `ErrScriptNotFound` e `ErrEntryNotFound`
-- [ ] LE-026 Rodar `go mod tidy` e conferir `go.mod`/`go.sum`
+- [x] T020 [US5] Migrar o teste do cliente de config de `github.com/golang/mock` para `go.uber.org/mock/gomock` neste repo
+- [x] T021 [US5] Remover `ErrDuplicatedEntry` e `ErrDuplicatedAccount` por nunca serem usados no fluxo
+- [x] T022 [US5] Rodar `go mod tidy` neste repo
+- [x] T023 [US5] Buscar `golang/mock`, `ErrDuplicatedEntry` e `ErrDuplicatedAccount` neste repo e atualizar `AGENTS.md`, `docs/specs/platform.md` e documentação
+- [x] LE-024 Migrar `adapters/outbound/config/*_test.go` para `go.uber.org/mock/gomock` mantendo os mesmos casos de teste
+- [x] LE-025 Excluir `ErrDuplicatedEntry` e `ErrDuplicatedAccount` de `internal/core/ledger/domain/errors.go`; manter `ErrScriptNotFound` e `ErrEntryNotFound`
+- [x] LE-026 Rodar `go mod tidy` e conferir `go.mod`/`go.sum`
 
 **Checkpoint**: SC-006 satisfeito.
 

@@ -14,7 +14,7 @@ Expor uma única rota de mutação que busca a configuração no Ledger Config, 
 
 **Linguagem/Versão**: Go 1.26.1 (`go.mod`)
 
-**Dependências principais**: Echo v4.16.0, core-sdk v0.8.8 (logger/tracer/métricas/HTTP/SNS), `go-sql-driver/mysql`, `sony/gobreaker`, `shopspring/decimal`, `expr-lang/expr`, `google/uuid`, `testify`, `go.uber.org/mock` e `github.com/golang/mock` (legado)
+**Dependências principais**: Echo v4.16.0, core-sdk v0.8.8 (logger/tracer/métricas/HTTP/SNS), `go-sql-driver/mysql`, `sony/gobreaker`, `shopspring/decimal`, `expr-lang/expr`, `google/uuid`, `testify` e `go.uber.org/mock`
 
 **Armazenamento**: MySQL `ledger`; tabelas `event` e `entry`, chave primária composta em `entry`, `decimal(20,15)`
 

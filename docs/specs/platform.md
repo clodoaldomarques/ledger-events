@@ -15,7 +15,7 @@ Documento de apoio às specs, derivado de `go.mod`, `config/config.go`, `docker-
 | Valores monetários | `shopspring/decimal` v1.5.0; coluna `decimal(20,15)` |
 | Observabilidade | OpenTelemetry 1.47 (traces/métricas) e logger Zap do `core-sdk` |
 | Validação | `go-playground/validator` v9 + `EntityRequest.Validate()` |
-| Testes | `stretchr/testify` v1.12.1, `go.uber.org/mock` v0.6.0 (mockgen), `github.com/golang/mock` v1.6.0 (legado, usado no teste de config) |
+| Testes | `stretchr/testify` v1.12.1 e `go.uber.org/mock` v0.6.0 (mockgen); fakes in-memory nas portas e `httptest` nos adapters HTTP |
 
 ## Configuração
 

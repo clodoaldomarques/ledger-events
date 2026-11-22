@@ -14,7 +14,7 @@ Reorganizar o módulo Go de `ledger-events` para uma topologia hexagonal explíc
 
 **Linguagem/Versão**: Go 1.26.1 (`go.mod`); Dockerfile usa Go + Alpine
 
-**Dependências principais**: Echo v4.16.0, core-sdk v0.8.8 (tracer/logger/métricas/HTTP/SNS), `go-sql-driver/mysql`, `sony/gobreaker`, `shopspring/decimal`, `expr-lang/expr`, `google/uuid`, `testify`, `go.uber.org/mock` (mockgen) e `github.com/golang/mock` (legado, a remover)
+**Dependências principais**: Echo v4.16.0, core-sdk v0.8.8 (tracer/logger/métricas/HTTP/SNS), `go-sql-driver/mysql`, `sony/gobreaker`, `shopspring/decimal`, `expr-lang/expr`, `google/uuid`, `testify` e `go.uber.org/mock` (mockgen)
 
 **Armazenamento**: MySQL `ledger`, tabelas `event` e `entry`, `decimal(20,15)` — nenhuma alteração de schema
 
@@ -146,8 +146,8 @@ go test ./internal/core/ledger/application -run TestService_CreateEvent -count=1
 go generate ./internal/core/ledger/...
 go mod tidy
 
-# rastreabilidade do código morto
-grep -R -E 'golang/mock|ErrDuplicatedEntry|ErrDuplicatedAccount' --include='*.go' --include='go.mod' . || true
+# rastreabilidade do código morto (a busca mira código e go.mod; a spec 005 cita os nomes como histórico)
+grep -R -E 'golang/mock|ErrDuplicatedEntry|ErrDuplicatedAccount' --include='*.go' --include='go.mod' --include='go.sum' . || true
 
 # contrato externo (sem dependências externas)
 # comparar respostas de POST /v1/ledger/events e /health/* com docs/specs/openapi.yaml

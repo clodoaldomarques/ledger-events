@@ -245,7 +245,7 @@ Regras de negócio observadas:
 | BR-08 | Um evento é válido somente com pelo menos uma entrada. | `domain/events/event.go::Validate` |
 | BR-09 | Ordem: config → cálculo → validação → persistência → publicação. | `application/events/services.go::CreateEvent` |
 
-Erros de domínio e de expressão: `ErrScriptNotFound` (`ledger config not found`), `ErrEntryNotFound` (`entry no found` no tipo; instanciado como `entry not found to producer <producer>` no serviço), `ErrInvalidExpression` (`invalid expression: <expr>`), `ErrCalculateExpression` (`error on calculate: <detalhe>`). `ErrDuplicatedEntry` e `ErrDuplicatedAccount` existem, mas não são usados no fluxo atual.
+Erros de domínio e de expressão: `ErrScriptNotFound` (`ledger config not found`), `ErrEntryNotFound` (`entry no found` no tipo; instanciado como `entry not found to producer <producer>` no serviço), `ErrInvalidExpression` (`invalid expression: <expr>`), `ErrCalculateExpression` (`error on calculate: <detalhe>`). Os erros de domínio não usados no fluxo foram removidos na spec 005.
 
 ## Critérios de Sucesso *(obrigatório)*
 
