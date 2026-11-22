@@ -5,7 +5,8 @@ info:
   description: >-
     Contrato HTTP reverse-engineered do commit 396db3e. Descreve o comportamento
     implementado, incluindo o mapeamento de falhas de integração para 400.
-    A versão narrativa está em docs/specs/03-api.md.
+    A versão narrativa está em docs/specs/001-criacao-de-eventos/plan.md e
+    docs/specs/002-api-de-health/spec.md.
   contact:
     name: Clodoaldo Marques
     url: https://github.com/clodoaldomarques/ledger-events

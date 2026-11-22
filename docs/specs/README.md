@@ -1,42 +1,55 @@
-# Especificações — Ledger Events
+# Especificações do Ledger Events
 
-Pacote de engenharia reversa do comportamento **atual** do serviço, reconstruído a partir do código, configurações e infraestrutura versionada.
+Specs geradas por **engenharia reversa** do código em `main` (baseline `396db3e`, 2026-11-21; diagramas em `abb0e85`). Elas descrevem o comportamento **atual**, não um estado desejado — com exceção da spec 005, que é prescritiva.
 
-- **Baseline:** commit `396db3e` (21/11/2026).
-- **Idioma:** português (pt-BR).
-- **Fonte de verdade:** código executável. Ocorrendo conflito entre README, Postman e código, prevalece o código.
+> Commit de referência: `396db3e` (`docs: atualiza README e adiciona AGENTS.md`).
 
-## Convenções
+## Estrutura
 
-| Prefixo | Uso |
+| Arquivo | Conteúdo |
 |---|---|
-| `FR-xx` | Requisito funcional |
-| `NFR-xx` | Requisito não funcional |
-| `BR-xx` | Regra de negócio / domínio |
-| `IR-xx` | Integração com sistema externo |
-| `OBS-xx` | Comportamento observado que pode ser um desvio ou dívida técnica |
+| `constitution.md` | Princípios e restrições extraídos da forma como o projeto é implementado |
+| `platform.md` | Contexto técnico: stack, variáveis de ambiente, MySQL, SNS, infra local, deploy e testes |
+| `001-criacao-de-eventos/` | Recebimento, busca da config, cálculo, persistência e publicação do evento |
+| `002-api-de-health/` | Liveness e readiness (MySQL + SNS) |
+| `003-configuracao-e-infraestrutura/` | Env, Docker Compose, Makefile, Terraform, Kubernetes, benchmarks e perfis |
+| `004-observabilidade-e-shutdown/` | Correlação, spans, logs, métricas e desligamento gracioso |
+| `005-hexagonal-adapters/` | **Prescritiva**: migração para portas e adapters; IDs canônicos da família ledger/balances |
+| `openapi.yaml` | Contrato HTTP legível por máquina, espelho de `001-criacao-de-eventos` e `002-api-de-health` |
 
-Cada requisito traz uma coluna de rastreabilidade apontando o arquivo ou função de origem.
+As specs `001`-`004` são espelhos do código atual; a `005` descreve um estado desejado e ainda não implementado. Ela usa os mesmos identificadores `US1`-`US5`, `FR-001`..`FR-014` e `SC-001`..`SC-007` dos demais repos da família para permitir rastreabilidade cruzada.
 
-Status usados nas specs:
+Cada funcionalidade segue o formato Spec Kit:
 
-- `AS-IS` — comportamento implementado e verificado diretamente no código.
-- `INFERIDO` — intenção deduzida do código; pode divergir do desenho original.
+- `spec.md` — cenários de usuário, requisitos funcionais (FR), entidades e critérios de sucesso (SC).
+- `plan.md` — decisões técnicas já presentes no código, estrutura de arquivos e complexidade conhecida.
+- `tasks.md` — sequência de implementação/reconstrução.
 
-## Índice
+## Convenção das tarefas
 
-1. [Contexto e escopo](00-contexto.md)
-2. [Requisitos](01-requisitos.md)
-3. [Arquitetura e fluxos](02-arquitetura.md)
-4. [Contrato HTTP](03-api.md) + [`openapi.yaml`](openapi.yaml)
-5. [Modelo de domínio e regras de negócio](04-dominio.md)
-6. [Modelo de dados](05-dados.md)
-7. [Configuração, operação e dívidas conhecidas](06-configuracao-e-operacao.md)
+- `[x]` = comportamento **já implementado** e verificado no commit de referência.
+- `[ ]` = lacuna ou melhoria identificada na engenharia reversa (bug, teste ausente, comportamento divergente).
 
-## Uso em um fluxo SDD
+Os identificadores `US`, `FR`, `SC` e `T` seguem a nomenclatura do Spec Kit. Os IDs antigos da engenharia reversa (`FR-xx`, `IR-xx`, `BR-xx`, `NFR-xx`, `OBS-xx`) foram preservados entre parênteses em cada requisito e continuam válidos para rastreabilidade. `AS-IS` identifica comportamento verificado no código; `INFERIDO`, intenção deduzida dele.
 
-1. **Especificar:** ajuste um requisito neste pacote antes de tocar no código.
-2. **Planejar:** registre a mudança de comportamento esperada e os casos de teste que a cobrem.
-3. **Implementar:** altere o código e mantenha a coluna de rastreabilidade atualizada.
-4. **Verificar:** `go test ./...`, `go vet ./...` e, quando aplicável, `go generate ./internal/application/events`.
-5. **Promover:** se um `OBS-xx` for corrigido, transforme-o em requisito com critério de aceitação e remova a observação.
+## De onde veio cada arquivo
+
+| Spec anterior | Destino no formato Spec Kit |
+|---|---|
+| `00-contexto.md` | `README.md`, `constitution.md`, `001-criacao-de-eventos/spec.md` |
+| `01-requisitos.md` | specs `001`-`004` (IDs originais anotados em cada FR) |
+| `02-arquitetura.md` | `001`/`002`/`004` plans e `platform.md` |
+| `03-api.md` | `001-criacao-de-eventos/plan.md`, `002-api-de-health/spec.md`, `openapi.yaml` |
+| `04-dominio.md` | `001-criacao-de-eventos/spec.md` e `plan.md` |
+| `05-dados.md` | `platform.md` e `001-criacao-de-eventos/plan.md` |
+| `06-configuracao-e-operacao.md` | `platform.md`, `003`/`004` specs e plans |
+
+## Uso para estudo
+
+1. Leia `constitution.md` e `platform.md`.
+2. Escolha uma funcionalidade e leia `spec.md` antes de olhar o código.
+3. Compare `plan.md` com os arquivos citados.
+4. Use `tasks.md` para identificar o que foi implementado e o que ficou como exercício.
+5. Para mudanças de arquitetura, leia a spec canônica `005-hexagonal-adapters/` antes de alterar o layout de pacotes.
+
+As specs são um espelho do código: se o código mudar, atualize também estes arquivos e o `plan.md` correspondente na mesma alteração.

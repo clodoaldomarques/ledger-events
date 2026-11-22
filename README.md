@@ -169,7 +169,7 @@ Kubernetes deployment expects the `mysql-credentials` and `aws-credentials` secr
 ## Documentation and notes
 
 - C4 diagrams (Mermaid): `docs/model/*.mmd`.
-- Reverse-engineered specs (SDD): [`docs/specs/`](docs/specs/README.md).
+- Reverse-engineered specs in Spec Kit format (`spec.md`/`plan.md`/`tasks.md`): [`docs/specs/`](docs/specs/README.md).
 - The Postman collection in `docs/collections/` is stale: it targets `/v1/accounting/events` with an older payload. Use `POST /v1/ledger/events` and the request shape above.
 - `AGENTS.md` contains repo-specific guidance for AI coding agents.
 
