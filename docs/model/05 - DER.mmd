@@ -1,0 +1,29 @@
+%% DER gerado a partir de scripts/sql/init.sql
+%% entry.event_id referencia event.event_id; o DDL não declara uma constraint FOREIGN KEY.
+%% Colunas sem NOT NULL no DDL são nullable.
+erDiagram
+    direction LR
+
+    EVENT ||--o{ ENTRY : "possui"
+
+    EVENT {
+        varchar(50) event_id PK
+        varchar(50) correlation_id
+        varchar(60) org_id
+        varchar(100) processing_code "nullable"
+        bigint program_id
+        bigint account_id
+        varchar(200) description
+        varchar(100) producer
+        timestamp created_at "nullable"
+        timestamp updated_at "nullable"
+    }
+
+    ENTRY {
+        varchar(50) event_id PK, FK "FK implícita para EVENT.event_id"
+        bigint entry_type_id PK
+        decimal amount "DECIMAL(20,15)"
+        varchar(60) debit_account "nullable"
+        varchar(60) credit_account "nullable"
+        varchar(200) description
+    }
