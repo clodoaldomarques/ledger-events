@@ -68,7 +68,7 @@ flowchart LR
 | `internal/infra/message/*` | Publicação SNS e formato da mensagem |
 | `config/config.go`, `.env` | Variáveis de ambiente e singleton de configuração |
 | `Makefile`, `docker-compose.yaml`, `scripts/k8s/*`, `scripts/terraform/*` | Execução local, build e deploy |
-| `docs/model/*.puml` | Diagramas C4 de contexto, container, domínio e componente |
+| `docs/model/*.mmd` | Diagramas C4 de contexto, container, domínio e componente |
 
 ## Premissas
 

@@ -1,0 +1,19 @@
+%% Diagrama de contexto C4 convertido de PlantUML para Mermaid flowchart.
+flowchart TB
+    bank["Agentes Financeiros<br/>Cliente externo que irá customizar os roteiros contábeis ou consultar um determinado evento contábel"]
+    events["Sistema de Eventos Contábeis<br/>Serviço responsável por gerenciar os eventos contábeis"]
+    transactions["Sistema de transações financeiras<br/>Serviço responsável por gerenciar as transações financeiras"]
+    migrations["Sistema de migração de Contas<br/>Serviço que gerencia a migração das contas externas para o contexto da empresa"]
+    datalake["Sistema de Relatórios<br/>Serviço que gerencia os relatórios financeiros e contábeis"]
+
+    bank -->|"Customiza um roteiro contábel<br/>JSON"| events
+    bank -->|"Consulta os lançamentos contábeis, ou efetuar um lançamento contábil avulso<br/>JSON"| events
+    bank -->|"Consulta os relatórios financeiros e contábeis<br/>Bucket S3"| datalake
+    datalake -->|"Consulta os lançamentos contábeis<br/>DMS-SQL"| events
+    events -->|"Consulta os lançamentos financeiros<br/>JSON"| transactions
+    events -->|"Consulta as contas migradas<br/>JSON"| migrations
+
+    classDef external fill:#f5f5f5,stroke:#777,stroke-dasharray: 4 4,color:#333
+    classDef internal fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+    class bank,transactions,migrations,datalake external
+    class events internal
