@@ -9,17 +9,30 @@ import (
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
 	"github.com/clodoaldomarques/ledger-events/config"
 	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/domain"
+	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/ports"
 	"github.com/google/uuid"
 )
 
 type Topic struct {
-	p *snssdk.Publisher
+	p   *snssdk.Publisher
+	cfg snssdk.Config
 }
 
-func New(ctx context.Context) *Topic {
-	return &Topic{
-		p: snssdk.NewPublisher(ctx, config.New()),
-	}
+var (
+	_ ports.EventPublisher = (*Topic)(nil)
+	_ ports.HealthChecker  = (*Topic)(nil)
+)
+
+// New recebe o publicador compartilhado e a configuração AWS usada no health check.
+func New(p *snssdk.Publisher, cfg snssdk.Config) *Topic {
+	return &Topic{p: p, cfg: cfg}
+}
+
+// NewFromConfig mantém a construção por requisição usada antes da spec 005.
+// Será removido quando a raiz de composição assumir a criação dos adapters.
+func NewFromConfig(ctx context.Context) *Topic {
+	cfg := config.New()
+	return New(snssdk.NewPublisher(ctx, cfg), cfg)
 }
 
 func (t Topic) Emit(ctx context.Context, cid string, e domain.Event) error {
@@ -41,6 +54,8 @@ func (t Topic) Close(ctx context.Context) {
 	logger.Info(ctx, "ending topic connection", logger.Fields{})
 }
 
-func (t Topic) Health() error {
-	return t.p.Health()
+// Health usa o ctx da requisição para preservar o prazo de 500ms do /health/ready:
+// snssdk.Publisher.Health consulta o tópico com o ctx recebido no construtor.
+func (t Topic) Health(ctx context.Context) error {
+	return snssdk.NewPublisher(ctx, t.cfg).Health()
 }

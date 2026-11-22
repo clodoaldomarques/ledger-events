@@ -7,14 +7,18 @@ import (
 )
 
 //go:generate mockgen -source=outbound.go -destination=mock.go -package=ports
-type Repository interface {
+type EventRepository interface {
 	SaveEvent(ctx context.Context, cid string, e domain.Event) error
 }
 
-type ConfigProvider interface {
+type EventConfigProvider interface {
 	FindConfigByLevel(ctx context.Context, cid string, processing_code string, orgID string, programID int64) (domain.Config, error)
 }
 
-type Topic interface {
+type EventPublisher interface {
 	Emit(ctx context.Context, cid string, e domain.Event) error
+}
+
+type HealthChecker interface {
+	Health(ctx context.Context) error
 }

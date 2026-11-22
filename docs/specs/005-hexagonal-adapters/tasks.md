@@ -28,7 +28,7 @@
 - [x] T007 Rodar `go generate ./...`, `go test ./...` e `go build ./...` após o movimento
 - [x] LE-001 `git mv internal/domain/events → internal/core/ledger/domain`
 - [x] LE-002 `git mv internal/application/events/services.go → internal/core/ledger/application/services.go`; mover `services_test.go` e `bench_test.go` junto
-- [ ] LE-003 `git mv internal/application/events/interfaces.go → internal/core/ledger/ports/outbound.go` (com a diretiva `go:generate`); criar `inbound.go` com `EventUseCase`
+- [x] LE-003 `git mv internal/application/events/interfaces.go → internal/core/ledger/ports/outbound.go` (com a diretiva `go:generate`); criar `inbound.go` com `EventUseCase`
 - [x] LE-004 `git mv internal/application/events/mock.go → internal/core/ledger/ports/mock.go`; regenerar, nunca editar à mão
 - [x] LE-005 `git mv internal/infra/rest/ledger → internal/adapters/inbound/http/ledger`; mover `server` e `shared` para `internal/adapters/inbound/http/{server,shared}`
 - [x] LE-006 `git mv internal/infra/db/mysql → internal/adapters/outbound/mysql`
@@ -44,18 +44,18 @@
 
 ## Fase 2: Portas explícitas
 
-- [ ] T009 [P] Renomear portas de saída para nomes intencionais (`EventRepository`, `EventConfigProvider`, `EventPublisher`, `HealthChecker`)
-- [ ] T010 [P] Declarar a porta de entrada `EventUseCase` no core
-- [ ] T011 [P] Mudar construtores dos adapters para receber cliente/config em vez de chamar `config.New()` internamente
-- [ ] T012 [P] Regenerar mocks ao lado das portas e ajustar `services_test.go`/`bench_test.go`
-- [ ] T013 [US1] Criar teste de contrato da porta com fake in-memory executando a mesma suíte do caso de uso
-- [ ] LE-010 Renomear `Repository` → `EventRepository`, `ConfigProvider` → `EventConfigProvider`, `Topic` → `EventPublisher`
-- [ ] LE-011 Declarar `EventUseCase` com o método público `CreateEvent` hoje em `Service`
+- [x] T009 [P] Renomear portas de saída para nomes intencionais (`EventRepository`, `EventConfigProvider`, `EventPublisher`, `HealthChecker`)
+- [x] T010 [P] Declarar a porta de entrada `EventUseCase` no core
+- [x] T011 [P] Mudar construtores dos adapters para receber cliente/config em vez de chamar `config.New()` internamente
+- [x] T012 [P] Regenerar mocks ao lado das portas e ajustar `services_test.go`/`bench_test.go`
+- [x] T013 [US1] Criar teste de contrato da porta com fake in-memory executando a mesma suíte do caso de uso
+- [x] LE-010 Renomear `Repository` → `EventRepository`, `ConfigProvider` → `EventConfigProvider`, `Topic` → `EventPublisher`
+- [x] LE-011 Declarar `EventUseCase` com o método público `CreateEvent` hoje em `Service`
 - [ ] LE-012 Trocar `mysql.NewRepository(ctx)` por `mysql.New(db)`; mover `connection.go` e a obtenção da string de conexão para a raiz de composição
 - [ ] LE-013 Trocar `configApi.New(ctx)` por `config.New(client)`; configurar circuit breaker `LedgerConfigAPI` na raiz
 - [ ] LE-014 Trocar `message.New(ctx)` por `sns.New(publisher)`; manter envelope e tags atuais
-- [ ] LE-015 Definir `HealthChecker` no core e implementá-lo nos três adapters (ping MySQL, atributos do tópico SNS, GET de config quando aplicável)
-- [ ] LE-016 Criar teste de contrato das portas com fake in-memory (mesmos casos de `services_test.go`)
+- [x] LE-015 Definir `HealthChecker` no core e implementá-lo nos três adapters (ping MySQL, atributos do tópico SNS, GET de config quando aplicável)
+- [x] LE-016 Criar teste de contrato das portas com fake in-memory (mesmos casos de `services_test.go`)
 
 **Checkpoint**: US1 e US2 verificáveis; core sem import de adapter.
 

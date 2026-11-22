@@ -10,12 +10,14 @@ import (
 )
 
 type Service struct {
-	api ports.ConfigProvider
-	rep ports.Repository
-	top ports.Topic
+	api ports.EventConfigProvider
+	rep ports.EventRepository
+	top ports.EventPublisher
 }
 
-func New(a ports.ConfigProvider, r ports.Repository, t ports.Topic) *Service {
+var _ ports.EventUseCase = (*Service)(nil)
+
+func New(a ports.EventConfigProvider, r ports.EventRepository, t ports.EventPublisher) *Service {
 	return &Service{
 		rep: r,
 		api: a,

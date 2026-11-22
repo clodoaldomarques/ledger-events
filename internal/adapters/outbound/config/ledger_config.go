@@ -13,6 +13,7 @@ import (
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
 	"github.com/clodoaldomarques/ledger-events/config"
 	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/domain"
+	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/ports"
 	"github.com/sony/gobreaker"
 )
 
@@ -22,8 +23,10 @@ type LedgerConfigApi struct {
 	circuitBreaker *gobreaker.CircuitBreaker
 }
 
-func New(ctx context.Context) *LedgerConfigApi {
-	baseUrl := config.New().LedgerConfigApiUrl
+var _ ports.EventConfigProvider = (*LedgerConfigApi)(nil)
+
+// New recebe a URL base e o cliente HTTP já construídos pela raiz de composição.
+func New(ctx context.Context, baseUrl string, client *http.Client) *LedgerConfigApi {
 	cb := gobreaker.NewCircuitBreaker(gobreaker.Settings{
 		Name:    "LedgerConfigAPI",
 		Timeout: 15 * time.Second,
@@ -40,9 +43,16 @@ func New(ctx context.Context) *LedgerConfigApi {
 
 	return &LedgerConfigApi{
 		baseUrl:        baseUrl,
-		httpClient:     httpclient.Client(),
+		httpClient:     client,
 		circuitBreaker: cb,
 	}
+}
+
+// NewFromConfig mantém a construção por requisição usada antes da spec 005.
+// Será removido quando a raiz de composição assumir a criação dos adapters.
+func NewFromConfig(ctx context.Context) *LedgerConfigApi {
+	cfg := config.New()
+	return New(ctx, cfg.LedgerConfigApiUrl, httpclient.Client())
 }
 
 func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, processing_code string, orgID string, programID int64) (domain.Config, error) {

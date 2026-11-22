@@ -69,11 +69,11 @@ func (s *Server) Readiness(c echo.Context) error {
 
 	db := mysql.NewRepository(ctx)
 	defer db.Close()
-	if err := db.Health(); err != nil {
+	if err := db.Health(ctx); err != nil {
 		return c.NoContent(http.StatusServiceUnavailable)
 	}
 
-	if err := sns.New(ctx).Health(); err != nil {
+	if err := sns.NewFromConfig(ctx).Health(ctx); err != nil {
 		return c.NoContent(http.StatusServiceUnavailable)
 	}
 

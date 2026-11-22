@@ -108,6 +108,8 @@ scripts/check-architecture.sh            # guarda de imports
 | `tracer`/`logger` dentro do core | Já presentes; mover para decorators exigiria reescrever spans e testes | Manter e registrar como desvio; decorators em spec separada |
 | `config.New()` singleton | Comportamento atual documentado | Manter; apenas parar de chamá-lo dentro dos adapters |
 | `sns.Publisher.Health()` usa o `ctx` recebido no construtor | Compartilhar o publisher criaria health check sem o prazo de 500ms do `/health/ready` | O adapter SNS guarda a config e cria um publisher somente para `Health(ctx)`, preservando o prazo; o publisher de `Emit` continua único |
+| Construtores legados (`NewFromConfig`) na Fase 2 | Tornar a Fase 2 verificável sem alterar a composição da Fase 3 | Wrappers transitórios deletados na Fase 3, quando `cmd/main.go` passa a injetar os clientes |
+| `HealthChecker` no adapter de config | `/health/ready` hoje consulta apenas MySQL e SNS | Não implementar GET de config: isso mudaria o contrato de prontidão (spec própria) |
 | De "por request" para "por processo" | Exige composição única na raiz | Confirmado na Fase 0: `sql.DB` e `aws-sdk-go-v2` são seguros para uso concorrente; `httpclient.Client()` do core-sdk usa `http.DefaultTransport` como base. Instâncias compartilhadas na raiz, sem factory |
 | Mover diretórios quebra todos os imports de uma vez | Mudança física | Fase 1 exclusivamente `git mv` + imports, com build verde antes de seguir |
 | Portas genéricas (`Repository`, `ConfigProvider`, `Topic`) | Nomes históricos | Renomear na Fase 2; aceitar quebra de imports internos |

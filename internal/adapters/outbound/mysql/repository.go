@@ -7,6 +7,7 @@ import (
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
 	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/domain"
+	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/ports"
 )
 
 var (
@@ -21,10 +22,20 @@ var (
 )
 
 type Repository struct {
-	ctx context.Context
-	db  *sql.DB
+	db *sql.DB
 }
 
+var (
+	_ ports.EventRepository = (*Repository)(nil)
+	_ ports.HealthChecker   = (*Repository)(nil)
+)
+
+func New(db *sql.DB) *Repository {
+	return &Repository{db: db}
+}
+
+// NewRepository mantém a construção por requisição usada antes da spec 005.
+// Será removido quando a raiz de composição assumir a criação do cliente.
 func NewRepository(ctx context.Context) *Repository {
 	db, err := Connect()
 	if err != nil {
@@ -32,10 +43,7 @@ func NewRepository(ctx context.Context) *Repository {
 		return &Repository{}
 	}
 
-	return &Repository{
-		ctx: ctx,
-		db:  db,
-	}
+	return New(db)
 }
 
 func (r Repository) Close() {
@@ -107,9 +115,6 @@ func (r Repository) SaveEvent(ctx context.Context, cid string, e domain.Event) e
 	return nil
 }
 
-func (r Repository) Health() error {
-	if err := r.db.PingContext(r.ctx); err != nil {
-		return err
-	}
-	return nil
+func (r Repository) Health(ctx context.Context) error {
+	return r.db.PingContext(ctx)
 }

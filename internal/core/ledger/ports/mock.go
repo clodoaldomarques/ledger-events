@@ -17,32 +17,32 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockRepository is a mock of Repository interface.
-type MockRepository struct {
+// MockEventRepository is a mock of EventRepository interface.
+type MockEventRepository struct {
 	ctrl     *gomock.Controller
-	recorder *MockRepositoryMockRecorder
+	recorder *MockEventRepositoryMockRecorder
 	isgomock struct{}
 }
 
-// MockRepositoryMockRecorder is the mock recorder for MockRepository.
-type MockRepositoryMockRecorder struct {
-	mock *MockRepository
+// MockEventRepositoryMockRecorder is the mock recorder for MockEventRepository.
+type MockEventRepositoryMockRecorder struct {
+	mock *MockEventRepository
 }
 
-// NewMockRepository creates a new mock instance.
-func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
-	mock := &MockRepository{ctrl: ctrl}
-	mock.recorder = &MockRepositoryMockRecorder{mock}
+// NewMockEventRepository creates a new mock instance.
+func NewMockEventRepository(ctrl *gomock.Controller) *MockEventRepository {
+	mock := &MockEventRepository{ctrl: ctrl}
+	mock.recorder = &MockEventRepositoryMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
+func (m *MockEventRepository) EXPECT() *MockEventRepositoryMockRecorder {
 	return m.recorder
 }
 
 // SaveEvent mocks base method.
-func (m *MockRepository) SaveEvent(ctx context.Context, cid string, e domain.Event) error {
+func (m *MockEventRepository) SaveEvent(ctx context.Context, cid string, e domain.Event) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveEvent", ctx, cid, e)
 	ret0, _ := ret[0].(error)
@@ -50,37 +50,37 @@ func (m *MockRepository) SaveEvent(ctx context.Context, cid string, e domain.Eve
 }
 
 // SaveEvent indicates an expected call of SaveEvent.
-func (mr *MockRepositoryMockRecorder) SaveEvent(ctx, cid, e any) *gomock.Call {
+func (mr *MockEventRepositoryMockRecorder) SaveEvent(ctx, cid, e any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveEvent", reflect.TypeOf((*MockRepository)(nil).SaveEvent), ctx, cid, e)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveEvent", reflect.TypeOf((*MockEventRepository)(nil).SaveEvent), ctx, cid, e)
 }
 
-// MockConfigProvider is a mock of ConfigProvider interface.
-type MockConfigProvider struct {
+// MockEventConfigProvider is a mock of EventConfigProvider interface.
+type MockEventConfigProvider struct {
 	ctrl     *gomock.Controller
-	recorder *MockConfigProviderMockRecorder
+	recorder *MockEventConfigProviderMockRecorder
 	isgomock struct{}
 }
 
-// MockConfigProviderMockRecorder is the mock recorder for MockConfigProvider.
-type MockConfigProviderMockRecorder struct {
-	mock *MockConfigProvider
+// MockEventConfigProviderMockRecorder is the mock recorder for MockEventConfigProvider.
+type MockEventConfigProviderMockRecorder struct {
+	mock *MockEventConfigProvider
 }
 
-// NewMockConfigProvider creates a new mock instance.
-func NewMockConfigProvider(ctrl *gomock.Controller) *MockConfigProvider {
-	mock := &MockConfigProvider{ctrl: ctrl}
-	mock.recorder = &MockConfigProviderMockRecorder{mock}
+// NewMockEventConfigProvider creates a new mock instance.
+func NewMockEventConfigProvider(ctrl *gomock.Controller) *MockEventConfigProvider {
+	mock := &MockEventConfigProvider{ctrl: ctrl}
+	mock.recorder = &MockEventConfigProviderMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockConfigProvider) EXPECT() *MockConfigProviderMockRecorder {
+func (m *MockEventConfigProvider) EXPECT() *MockEventConfigProviderMockRecorder {
 	return m.recorder
 }
 
 // FindConfigByLevel mocks base method.
-func (m *MockConfigProvider) FindConfigByLevel(ctx context.Context, cid, processing_code, orgID string, programID int64) (domain.Config, error) {
+func (m *MockEventConfigProvider) FindConfigByLevel(ctx context.Context, cid, processing_code, orgID string, programID int64) (domain.Config, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindConfigByLevel", ctx, cid, processing_code, orgID, programID)
 	ret0, _ := ret[0].(domain.Config)
@@ -89,37 +89,37 @@ func (m *MockConfigProvider) FindConfigByLevel(ctx context.Context, cid, process
 }
 
 // FindConfigByLevel indicates an expected call of FindConfigByLevel.
-func (mr *MockConfigProviderMockRecorder) FindConfigByLevel(ctx, cid, processing_code, orgID, programID any) *gomock.Call {
+func (mr *MockEventConfigProviderMockRecorder) FindConfigByLevel(ctx, cid, processing_code, orgID, programID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindConfigByLevel", reflect.TypeOf((*MockConfigProvider)(nil).FindConfigByLevel), ctx, cid, processing_code, orgID, programID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindConfigByLevel", reflect.TypeOf((*MockEventConfigProvider)(nil).FindConfigByLevel), ctx, cid, processing_code, orgID, programID)
 }
 
-// MockTopic is a mock of Topic interface.
-type MockTopic struct {
+// MockEventPublisher is a mock of EventPublisher interface.
+type MockEventPublisher struct {
 	ctrl     *gomock.Controller
-	recorder *MockTopicMockRecorder
+	recorder *MockEventPublisherMockRecorder
 	isgomock struct{}
 }
 
-// MockTopicMockRecorder is the mock recorder for MockTopic.
-type MockTopicMockRecorder struct {
-	mock *MockTopic
+// MockEventPublisherMockRecorder is the mock recorder for MockEventPublisher.
+type MockEventPublisherMockRecorder struct {
+	mock *MockEventPublisher
 }
 
-// NewMockTopic creates a new mock instance.
-func NewMockTopic(ctrl *gomock.Controller) *MockTopic {
-	mock := &MockTopic{ctrl: ctrl}
-	mock.recorder = &MockTopicMockRecorder{mock}
+// NewMockEventPublisher creates a new mock instance.
+func NewMockEventPublisher(ctrl *gomock.Controller) *MockEventPublisher {
+	mock := &MockEventPublisher{ctrl: ctrl}
+	mock.recorder = &MockEventPublisherMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockTopic) EXPECT() *MockTopicMockRecorder {
+func (m *MockEventPublisher) EXPECT() *MockEventPublisherMockRecorder {
 	return m.recorder
 }
 
 // Emit mocks base method.
-func (m *MockTopic) Emit(ctx context.Context, cid string, e domain.Event) error {
+func (m *MockEventPublisher) Emit(ctx context.Context, cid string, e domain.Event) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Emit", ctx, cid, e)
 	ret0, _ := ret[0].(error)
@@ -127,7 +127,45 @@ func (m *MockTopic) Emit(ctx context.Context, cid string, e domain.Event) error 
 }
 
 // Emit indicates an expected call of Emit.
-func (mr *MockTopicMockRecorder) Emit(ctx, cid, e any) *gomock.Call {
+func (mr *MockEventPublisherMockRecorder) Emit(ctx, cid, e any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Emit", reflect.TypeOf((*MockTopic)(nil).Emit), ctx, cid, e)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Emit", reflect.TypeOf((*MockEventPublisher)(nil).Emit), ctx, cid, e)
+}
+
+// MockHealthChecker is a mock of HealthChecker interface.
+type MockHealthChecker struct {
+	ctrl     *gomock.Controller
+	recorder *MockHealthCheckerMockRecorder
+	isgomock struct{}
+}
+
+// MockHealthCheckerMockRecorder is the mock recorder for MockHealthChecker.
+type MockHealthCheckerMockRecorder struct {
+	mock *MockHealthChecker
+}
+
+// NewMockHealthChecker creates a new mock instance.
+func NewMockHealthChecker(ctrl *gomock.Controller) *MockHealthChecker {
+	mock := &MockHealthChecker{ctrl: ctrl}
+	mock.recorder = &MockHealthCheckerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockHealthChecker) EXPECT() *MockHealthCheckerMockRecorder {
+	return m.recorder
+}
+
+// Health mocks base method.
+func (m *MockHealthChecker) Health(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Health", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Health indicates an expected call of Health.
+func (mr *MockHealthCheckerMockRecorder) Health(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Health", reflect.TypeOf((*MockHealthChecker)(nil).Health), ctx)
 }

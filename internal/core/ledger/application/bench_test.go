@@ -21,7 +21,7 @@ func newBenchService(b *testing.B, expr string) *Service {
 	// Não chamamos ctrl.Finish() aqui: o gomock registra um Cleanup
 	// automático quando recebe *testing.B, validando as expectativas no final.
 
-	a := ports.NewMockConfigProvider(ctrl)
+	a := ports.NewMockEventConfigProvider(ctrl)
 	a.EXPECT().
 		FindConfigByLevel(
 			gomock.Any(),
@@ -33,13 +33,13 @@ func newBenchService(b *testing.B, expr string) *Service {
 		Return(fakeScript(expr), nil).
 		AnyTimes() // benchmark roda b.N vezes, então AnyTimes é obrigatório
 
-	r := ports.NewMockRepository(ctrl)
+	r := ports.NewMockEventRepository(ctrl)
 	r.EXPECT().
 		SaveEvent(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil).
 		AnyTimes()
 
-	t := ports.NewMockTopic(ctrl)
+	t := ports.NewMockEventPublisher(ctrl)
 	t.EXPECT().
 		Emit(gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil).
@@ -52,7 +52,7 @@ func newBenchService(b *testing.B, expr string) *Service {
 func newBenchServiceErrConfig(b *testing.B) *Service {
 	ctrl := gomock.NewController(b)
 
-	a := ports.NewMockConfigProvider(ctrl)
+	a := ports.NewMockEventConfigProvider(ctrl)
 	a.EXPECT().
 		FindConfigByLevel(
 			gomock.Any(),
@@ -64,8 +64,8 @@ func newBenchServiceErrConfig(b *testing.B) *Service {
 		Return(nil, domain.ErrScriptNotFound{}).
 		AnyTimes()
 
-	r := ports.NewMockRepository(ctrl)
-	tp := ports.NewMockTopic(ctrl)
+	r := ports.NewMockEventRepository(ctrl)
+	tp := ports.NewMockEventPublisher(ctrl)
 
 	return New(a, r, tp)
 }

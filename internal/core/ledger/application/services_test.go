@@ -23,14 +23,14 @@ func TestService_CreateEvent(t *testing.T) {
 		{
 			name: "when calculate various values and save event with success",
 			setup: func(ctrl *gomock.Controller) *Service {
-				a := ports.NewMockConfigProvider(ctrl)
+				a := ports.NewMockEventConfigProvider(ctrl)
 				scr := fakeScript("(Amounts.amount + Fees.iof) * (Fees.tax / Fees.iof) - Fees.tax")
 				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(scr, nil).Times(1)
 
-				r := ports.NewMockRepository(ctrl)
+				r := ports.NewMockEventRepository(ctrl)
 				r.EXPECT().SaveEvent(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).Times(1)
 
-				t := ports.NewMockTopic(ctrl)
+				t := ports.NewMockEventPublisher(ctrl)
 				t.EXPECT().Emit(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).Times(1)
 
 				return New(a, r, t)
@@ -47,14 +47,14 @@ func TestService_CreateEvent(t *testing.T) {
 		{
 			name: "when pass single value and save event with success",
 			setup: func(ctrl *gomock.Controller) *Service {
-				a := ports.NewMockConfigProvider(ctrl)
+				a := ports.NewMockEventConfigProvider(ctrl)
 				scr := fakeScript("Amounts.amount")
 				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(scr, nil).Times(1)
 
-				r := ports.NewMockRepository(ctrl)
+				r := ports.NewMockEventRepository(ctrl)
 				r.EXPECT().SaveEvent(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).Times(1)
 
-				t := ports.NewMockTopic(ctrl)
+				t := ports.NewMockEventPublisher(ctrl)
 				t.EXPECT().Emit(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).Times(1)
 
 				return New(a, r, t)
@@ -71,11 +71,11 @@ func TestService_CreateEvent(t *testing.T) {
 		{
 			name: "when receive error on validate expression",
 			setup: func(ctrl *gomock.Controller) *Service {
-				a := ports.NewMockConfigProvider(ctrl)
+				a := ports.NewMockEventConfigProvider(ctrl)
 				scr := fakeScript("jack sparrow is here")
 				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(scr, nil).Times(1)
-				r := ports.NewMockRepository(ctrl)
-				t := ports.NewMockTopic(ctrl)
+				r := ports.NewMockEventRepository(ctrl)
+				t := ports.NewMockEventPublisher(ctrl)
 				return New(a, r, t)
 			},
 			args: func() (domain.Event, map[string]decimal.Decimal, map[string]decimal.Decimal) {
@@ -89,10 +89,10 @@ func TestService_CreateEvent(t *testing.T) {
 		{
 			name: "when script not found",
 			setup: func(ctrl *gomock.Controller) *Service {
-				a := ports.NewMockConfigProvider(ctrl)
+				a := ports.NewMockEventConfigProvider(ctrl)
 				a.EXPECT().FindConfigByLevel(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil, domain.ErrScriptNotFound{}).Times(1)
-				r := ports.NewMockRepository(ctrl)
-				t := ports.NewMockTopic(ctrl)
+				r := ports.NewMockEventRepository(ctrl)
+				t := ports.NewMockEventPublisher(ctrl)
 
 				return New(a, r, t)
 			},

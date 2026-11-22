@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/clodoaldomarques/ledger-events/config"
+	"github.com/clodoaldomarques/core-sdk/pkg/otel/httpclient"
 	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/domain"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
@@ -51,8 +51,8 @@ func TestAccountconfigsApi_FindScriptByLevel(t *testing.T) {
 		{
 			name: "success - retrieve ledger config",
 			setup: func(ctrl *gomock.Controller) *LedgerConfigApi {
-				config.New(config.WithLedgerConfigApiUrl(server.URL))
-				return New(context.Background())
+
+				return New(context.Background(), server.URL, httpclient.Client())
 			},
 			args: func() args {
 				return args{
@@ -72,8 +72,8 @@ func TestAccountconfigsApi_FindScriptByLevel(t *testing.T) {
 		{
 			name: "error - retrieve ledger config",
 			setup: func(ctrl *gomock.Controller) *LedgerConfigApi {
-				config.New(config.WithLedgerConfigApiUrl(server.URL))
-				return New(context.Background())
+
+				return New(context.Background(), server.URL, httpclient.Client())
 			},
 			args: func() args {
 				return args{

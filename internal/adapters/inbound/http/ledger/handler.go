@@ -16,13 +16,13 @@ func CreateEvent(c echo.Context) error {
 	orgID, cid := getHeaders(c)
 	ctx := c.Request().Context()
 
-	a := configApi.New(ctx)
+	a := configApi.NewFromConfig(ctx)
 	defer a.Close()
 
 	r := mysql.NewRepository(ctx)
 	defer r.Close()
 
-	t := sns.New(ctx)
+	t := sns.NewFromConfig(ctx)
 	defer t.Close(ctx)
 
 	s := application.New(a, r, t)
