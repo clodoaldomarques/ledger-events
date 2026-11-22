@@ -34,18 +34,6 @@ func New(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
 
-// NewRepository mantém a construção por requisição usada antes da spec 005.
-// Será removido quando a raiz de composição assumir a criação do cliente.
-func NewRepository(ctx context.Context) *Repository {
-	db, err := Connect()
-	if err != nil {
-		logger.Error(ctx, "error on connect to database", logger.Fields{"error": err.Error()})
-		return &Repository{}
-	}
-
-	return New(db)
-}
-
 func (r Repository) Close() {
 	r.db.Close()
 }

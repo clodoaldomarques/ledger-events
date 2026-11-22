@@ -7,7 +7,6 @@ import (
 	snssdk "github.com/clodoaldomarques/core-sdk/pkg/aws/sns"
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
-	"github.com/clodoaldomarques/ledger-events/config"
 	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/domain"
 	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/ports"
 	"github.com/google/uuid"
@@ -26,13 +25,6 @@ var (
 // New recebe o publicador compartilhado e a configuração AWS usada no health check.
 func New(p *snssdk.Publisher, cfg snssdk.Config) *Topic {
 	return &Topic{p: p, cfg: cfg}
-}
-
-// NewFromConfig mantém a construção por requisição usada antes da spec 005.
-// Será removido quando a raiz de composição assumir a criação dos adapters.
-func NewFromConfig(ctx context.Context) *Topic {
-	cfg := config.New()
-	return New(snssdk.NewPublisher(ctx, cfg), cfg)
 }
 
 func (t Topic) Emit(ctx context.Context, cid string, e domain.Event) error {

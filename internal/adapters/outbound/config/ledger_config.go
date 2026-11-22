@@ -8,10 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/clodoaldomarques/core-sdk/pkg/otel/httpclient"
 	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
-	"github.com/clodoaldomarques/ledger-events/config"
 	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/domain"
 	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/ports"
 	"github.com/sony/gobreaker"
@@ -46,13 +44,6 @@ func New(ctx context.Context, baseUrl string, client *http.Client) *LedgerConfig
 		httpClient:     client,
 		circuitBreaker: cb,
 	}
-}
-
-// NewFromConfig mantém a construção por requisição usada antes da spec 005.
-// Será removido quando a raiz de composição assumir a criação dos adapters.
-func NewFromConfig(ctx context.Context) *LedgerConfigApi {
-	cfg := config.New()
-	return New(ctx, cfg.LedgerConfigApiUrl, httpclient.Client())
 }
 
 func (a LedgerConfigApi) FindConfigByLevel(ctx context.Context, cid string, processing_code string, orgID string, programID int64) (domain.Config, error) {

@@ -11,25 +11,26 @@ import (
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
 	"github.com/clodoaldomarques/ledger-events/internal/adapters/inbound/http/ledger"
 	"github.com/clodoaldomarques/ledger-events/internal/adapters/inbound/http/shared"
-	"github.com/clodoaldomarques/ledger-events/internal/adapters/outbound/mysql"
-	"github.com/clodoaldomarques/ledger-events/internal/adapters/outbound/sns"
+	"github.com/clodoaldomarques/ledger-events/internal/core/ledger/ports"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 )
 
 type Server struct {
-	http *echo.Echo
+	http   *echo.Echo
+	health ports.HealthChecker
 }
 
-func New() *Server {
+func New(handler *ledger.Handler, health ports.HealthChecker) *Server {
 	s := Server{
-		http: echo.New(),
+		http:   echo.New(),
+		health: health,
 	}
-	s.routes()
+	s.routes(handler)
 	return &s
 }
 
-func (s Server) routes() {
+func (s *Server) routes(handler *ledger.Handler) {
 	s.http.Validator = &CustomValidator{validator: validator.New()}
 
 	// tracer interceptor
@@ -45,7 +46,7 @@ func (s Server) routes() {
 	s.http.GET("/health/ready", s.Readiness)
 
 	// Events
-	s.http.POST("/v1/ledger/events", ledger.CreateEvent)
+	s.http.POST("/v1/ledger/events", handler.CreateEvent)
 }
 
 func (s Server) Start(port int) error {
@@ -67,13 +68,7 @@ func (s *Server) Readiness(c echo.Context) error {
 	)
 	defer cancel()
 
-	db := mysql.NewRepository(ctx)
-	defer db.Close()
-	if err := db.Health(ctx); err != nil {
-		return c.NoContent(http.StatusServiceUnavailable)
-	}
-
-	if err := sns.NewFromConfig(ctx).Health(ctx); err != nil {
+	if err := s.health.Health(ctx); err != nil {
 		return c.NoContent(http.StatusServiceUnavailable)
 	}
 

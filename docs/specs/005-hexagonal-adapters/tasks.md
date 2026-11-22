@@ -51,9 +51,9 @@
 - [x] T013 [US1] Criar teste de contrato da porta com fake in-memory executando a mesma suíte do caso de uso
 - [x] LE-010 Renomear `Repository` → `EventRepository`, `ConfigProvider` → `EventConfigProvider`, `Topic` → `EventPublisher`
 - [x] LE-011 Declarar `EventUseCase` com o método público `CreateEvent` hoje em `Service`
-- [ ] LE-012 Trocar `mysql.NewRepository(ctx)` por `mysql.New(db)`; mover `connection.go` e a obtenção da string de conexão para a raiz de composição
-- [ ] LE-013 Trocar `configApi.New(ctx)` por `config.New(client)`; configurar circuit breaker `LedgerConfigAPI` na raiz
-- [ ] LE-014 Trocar `message.New(ctx)` por `sns.New(publisher)`; manter envelope e tags atuais
+- [x] LE-012 Trocar `mysql.NewRepository(ctx)` por `mysql.New(db)`; mover `connection.go` e a obtenção da string de conexão para a raiz de composição
+- [x] LE-013 Trocar `configApi.New(ctx)` por `config.New(client)`; configurar circuit breaker `LedgerConfigAPI` na raiz
+- [x] LE-014 Trocar `message.New(ctx)` por `sns.New(publisher)`; manter envelope e tags atuais
 - [x] LE-015 Definir `HealthChecker` no core e implementá-lo nos três adapters (ping MySQL, atributos do tópico SNS, GET de config quando aplicável)
 - [x] LE-016 Criar teste de contrato das portas com fake in-memory (mesmos casos de `services_test.go`)
 
@@ -63,19 +63,19 @@
 
 ## Fase 3: Composition root e adaptadores de entrada
 
-- [ ] T014 [P] Mover a construção de adapters para `cmd/main.go` neste repo
-- [ ] T015 [US2][P] Transformar `CreateEvent` em método de struct que recebe a porta de entrada; remover `configApi.New`/`mysql.NewRepository`/`message.New` do handler
-- [ ] T016 [US3][P] Injetar `HealthChecker` em `/health/ready`
-- [ ] T017 [US3] Centralizar o mapeador de erros de domínio para status HTTP (400) no adaptador de entrada
-- [ ] T018 [US3] Garantir que `Close()` dos adapters seja chamado no graceful shutdown
-- [ ] T019 [US2] Adicionar teste de handler com fake da porta de entrada
-- [ ] LE-017 Em `cmd/main.go`: construir `config.New()`, cliente MySQL, `httpclient` do core-sdk, `sns.NewPublisher`, adapters, `Service`, handler e servidor
-- [ ] LE-018 Transformar `CreateEvent` de função solta em método de `Handler{uc EventUseCase}`; remover as três chamadas de construtores do handler
-- [ ] LE-019 Alterar `server.New()` para receber o handler e o `HealthChecker`; remover imports de `mysql`/`message` do servidor
-- [ ] LE-020 Mover `getHeaders` (x-cid/x-tenant) e `NewSpanFromContext` para `adapters/inbound/http/shared`
-- [ ] LE-021 Criar `adapters/inbound/http/shared/erros.go` com o mapeador `400` usado hoje no handler
-- [ ] LE-022 Fechar adapters no graceful shutdown em `cmd/main.go`; preservar o comportamento dos `Close()` atuais
-- [ ] LE-023 Adicionar teste de handler com fake de `EventUseCase` (sem MySQL, SNS ou MockServer)
+- [x] T014 [P] Mover a construção de adapters para `cmd/main.go` neste repo
+- [x] T015 [US2][P] Transformar `CreateEvent` em método de struct que recebe a porta de entrada; remover `configApi.New`/`mysql.NewRepository`/`message.New` do handler
+- [x] T016 [US3][P] Injetar `HealthChecker` em `/health/ready`
+- [x] T017 [US3] Centralizar o mapeador de erros de domínio para status HTTP (400) no adaptador de entrada
+- [x] T018 [US3] Garantir que `Close()` dos adapters seja chamado no graceful shutdown
+- [x] T019 [US2] Adicionar teste de handler com fake da porta de entrada
+- [x] LE-017 Em `cmd/main.go`: construir `config.New()`, cliente MySQL, `httpclient` do core-sdk, `sns.NewPublisher`, adapters, `Service`, handler e servidor
+- [x] LE-018 Transformar `CreateEvent` de função solta em método de `Handler{uc EventUseCase}`; remover as três chamadas de construtores do handler
+- [x] LE-019 Alterar `server.New()` para receber o handler e o `HealthChecker`; remover imports de `mysql`/`message` do servidor
+- [x] LE-020 Mover `getHeaders` (x-cid/x-tenant) e `NewSpanFromContext` para `adapters/inbound/http/shared` (`NewSpanFromContext` não existe neste repo; spans seguem no core)
+- [x] LE-021 Criar `adapters/inbound/http/shared/erros.go` com o mapeador `400` usado hoje no handler
+- [x] LE-022 Fechar adapters no graceful shutdown em `cmd/main.go`; preservar o comportamento dos `Close()` atuais
+- [x] LE-023 Adicionar teste de handler com fake de `EventUseCase` (sem MySQL, SNS ou MockServer)
 
 **Checkpoint**: SC-003 e SC-005; contrato de `openapi.yaml` inalterado.
 
