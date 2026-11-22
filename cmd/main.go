@@ -12,7 +12,7 @@ import (
 	"github.com/clodoaldomarques/core-sdk/pkg/otel"
 	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
 	"github.com/clodoaldomarques/ledger-events/config"
-	"github.com/clodoaldomarques/ledger-events/internal/infra/rest/server"
+	"github.com/clodoaldomarques/ledger-events/internal/adapters/inbound/http/server"
 )
 
 func main() {

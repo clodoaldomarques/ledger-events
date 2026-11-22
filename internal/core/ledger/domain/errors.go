@@ -1,0 +1,41 @@
+package domain
+
+type ErrDuplicatedEntry struct {
+	msg string
+}
+
+func (e ErrDuplicatedEntry) Error() string {
+	if e.msg == "" {
+		return "duplicated entry"
+	}
+	return e.msg
+}
+
+type ErrDuplicatedAccount struct {
+	msg string
+}
+
+func (e ErrDuplicatedAccount) Error() string {
+	if e.msg == "" {
+		return "duplicated account type"
+	}
+	return e.msg
+}
+
+type ErrScriptNotFound struct {
+}
+
+func (e ErrScriptNotFound) Error() string {
+	return "ledger config not found"
+}
+
+type ErrEntryNotFound struct {
+	msg string
+}
+
+func (e ErrEntryNotFound) Error() string {
+	if e.msg == "" {
+		return "entry no found"
+	}
+	return e.msg
+}

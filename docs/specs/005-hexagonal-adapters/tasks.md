@@ -23,18 +23,18 @@
 
 ## Fase 1: Movimento físico
 
-- [ ] T005 [P] Executar o mapeamento de pastas de [plan.md](plan.md) neste repo, sem alterar regras de negócio
-- [ ] T006 [P] Ajustar todos os imports e a diretiva `go:generate` (que vai com `interfaces.go` para `ports/`)
-- [ ] T007 Rodar `go generate ./...`, `go test ./...` e `go build ./...` após o movimento
-- [ ] LE-001 `git mv internal/domain/events → internal/core/ledger/domain`
-- [ ] LE-002 `git mv internal/application/events/services.go → internal/core/ledger/application/services.go`; mover `services_test.go` e `bench_test.go` junto
+- [x] T005 [P] Executar o mapeamento de pastas de [plan.md](plan.md) neste repo, sem alterar regras de negócio
+- [x] T006 [P] Ajustar todos os imports e a diretiva `go:generate` (que vai com `interfaces.go` para `ports/`)
+- [x] T007 Rodar `go generate ./...`, `go test ./...` e `go build ./...` após o movimento
+- [x] LE-001 `git mv internal/domain/events → internal/core/ledger/domain`
+- [x] LE-002 `git mv internal/application/events/services.go → internal/core/ledger/application/services.go`; mover `services_test.go` e `bench_test.go` junto
 - [ ] LE-003 `git mv internal/application/events/interfaces.go → internal/core/ledger/ports/outbound.go` (com a diretiva `go:generate`); criar `inbound.go` com `EventUseCase`
-- [ ] LE-004 `git mv internal/application/events/mock.go → internal/core/ledger/ports/mock.go`; regenerar, nunca editar à mão
-- [ ] LE-005 `git mv internal/infra/rest/ledger → internal/adapters/inbound/http/ledger`; mover `server` e `shared` para `internal/adapters/inbound/http/{server,shared}`
-- [ ] LE-006 `git mv internal/infra/db/mysql → internal/adapters/outbound/mysql`
-- [ ] LE-007 `git mv internal/infra/ledger/config → internal/adapters/outbound/config`
-- [ ] LE-008 `git mv internal/infra/message → internal/adapters/outbound/sns`
-- [ ] LE-009 Ajustar imports em `services_test.go`, `bench_test.go` e `ledger_config_test.go`; rodar a suíte completa
+- [x] LE-004 `git mv internal/application/events/mock.go → internal/core/ledger/ports/mock.go`; regenerar, nunca editar à mão
+- [x] LE-005 `git mv internal/infra/rest/ledger → internal/adapters/inbound/http/ledger`; mover `server` e `shared` para `internal/adapters/inbound/http/{server,shared}`
+- [x] LE-006 `git mv internal/infra/db/mysql → internal/adapters/outbound/mysql`
+- [x] LE-007 `git mv internal/infra/ledger/config → internal/adapters/outbound/config`
+- [x] LE-008 `git mv internal/infra/message → internal/adapters/outbound/sns`
+- [x] LE-009 Ajustar imports em `services_test.go`, `bench_test.go` e `ledger_config_test.go`; rodar a suíte completa
 
 **Não aplicável aqui**: T008 (reparo do build de `balances-worker`) — este repo já compila.
 

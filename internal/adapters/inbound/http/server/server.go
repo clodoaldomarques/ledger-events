@@ -1,0 +1,101 @@
+package server
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"time"
+
+	otelecho "github.com/clodoaldomarques/core-sdk/pkg/otel/echo"
+	"github.com/clodoaldomarques/core-sdk/pkg/otel/tracer"
+	"github.com/clodoaldomarques/core-sdk/pkg/zap/logger"
+	"github.com/clodoaldomarques/ledger-events/internal/adapters/inbound/http/ledger"
+	"github.com/clodoaldomarques/ledger-events/internal/adapters/inbound/http/shared"
+	"github.com/clodoaldomarques/ledger-events/internal/adapters/outbound/mysql"
+	"github.com/clodoaldomarques/ledger-events/internal/adapters/outbound/sns"
+	"github.com/go-playground/validator"
+	"github.com/labstack/echo/v4"
+)
+
+type Server struct {
+	http *echo.Echo
+}
+
+func New() *Server {
+	s := Server{
+		http: echo.New(),
+	}
+	s.routes()
+	return &s
+}
+
+func (s Server) routes() {
+	s.http.Validator = &CustomValidator{validator: validator.New()}
+
+	// tracer interceptor
+	s.http.Use(tracer.Interceptor())
+
+	// logger interceptor
+	s.http.Use(logger.Interceptor())
+
+	s.http.Use(otelecho.Interceptor())
+
+	// Health
+	s.http.GET("/health/live", s.Liveness)
+	s.http.GET("/health/ready", s.Readiness)
+
+	// Events
+	s.http.POST("/v1/ledger/events", ledger.CreateEvent)
+}
+
+func (s Server) Start(port int) error {
+	return s.http.Start(fmt.Sprintf(":%d", port))
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.http.Shutdown(ctx)
+}
+
+func (s *Server) Liveness(c echo.Context) error {
+	return c.NoContent(http.StatusOK)
+}
+
+func (s *Server) Readiness(c echo.Context) error {
+	ctx, cancel := context.WithTimeout(
+		c.Request().Context(),
+		500*time.Millisecond,
+	)
+	defer cancel()
+
+	db := mysql.NewRepository(ctx)
+	defer db.Close()
+	if err := db.Health(); err != nil {
+		return c.NoContent(http.StatusServiceUnavailable)
+	}
+
+	if err := sns.New(ctx).Health(); err != nil {
+		return c.NoContent(http.StatusServiceUnavailable)
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	if err := cv.validator.Struct(i); err != nil {
+		return err
+	}
+
+	r, ok := i.(shared.EntityRequest)
+	if !ok {
+		return nil
+	}
+
+	if err := r.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
